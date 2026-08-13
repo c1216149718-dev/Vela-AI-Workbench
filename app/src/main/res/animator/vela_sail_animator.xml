@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<objectAnimator xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="1000"
+    android:propertyName="translationY"
+    android:valueType="floatType">
+    <propertyValuesHolder android:propertyName="translationY">
+        <keyframe android:fraction="0" android:value="0" />
+        <keyframe android:fraction="0.4" android:value="0" />
+        <keyframe android:fraction="0.65" android:value="-2" />
+        <keyframe android:fraction="1" android:value="0" />
+    </propertyValuesHolder>
+</objectAnimator>

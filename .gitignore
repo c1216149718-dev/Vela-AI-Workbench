@@ -1,0 +1,48 @@
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Local Android SDK and signing configuration
+local.properties
+keystore.properties
+*.jks
+*.keystore
+
+# Gradle and Kotlin caches
+.gradle/
+.kotlin/
+**/build/
+
+# Native build output
+.cxx/
+.externalNativeBuild/
+
+# Local diagnostics and generated artifacts
+.sceneview-inspect/
+artifacts/
+*.apk
+*.aab
+*.ap_
+*.log
+hs_err_pid*
+replay_pid*
+
+# IDE / OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+captures/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Historical design exploration is kept locally; release-ready visuals remain tracked.
+design/concepts/
+design/validation/historical/
+design/validation/*
+!design/validation/v1.20.0/
+!design/validation/v1.20.0/**

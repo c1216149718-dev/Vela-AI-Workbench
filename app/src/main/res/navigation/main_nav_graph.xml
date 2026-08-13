@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_nav_graph"
+    app:startDestination="@id/workbenchFragment">
+
+    <fragment
+        android:id="@+id/workbenchFragment"
+        android:name="com.deepseek.widget.feature.workbench.WorkbenchFragment"
+        android:label="@string/tab_workbench" />
+
+    <fragment
+        android:id="@+id/deepSeekFragment"
+        android:name="com.deepseek.widget.DeepSeekFragment"
+        android:label="@string/tab_deepseek" />
+
+    <fragment
+        android:id="@+id/apiKeyFunFragment"
+        android:name="com.deepseek.widget.ApiKeyFunFragment"
+        android:label="@string/tab_apikey_fun" />
+
+    <fragment
+        android:id="@+id/apiKeyFunKeysFragment"
+        android:name="com.deepseek.widget.feature.apikey.ApiKeyFunKeysFragment"
+        android:label="@string/apikey_keys_title" />
+
+    <fragment
+        android:id="@+id/insightsFragment"
+        android:name="com.deepseek.widget.feature.insights.InsightsFragment"
+        android:label="@string/tab_insights" />
+
+    <fragment
+        android:id="@+id/usageDetailFragment"
+        android:name="com.deepseek.widget.feature.insights.UsageDetailFragment"
+        android:label="用量详情" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.deepseek.widget.SettingsFragment"
+        android:label="@string/tab_settings" />
+
+    <fragment
+        android:id="@+id/taskListFragment"
+        android:name="com.deepseek.widget.feature.tasks.TaskListFragment"
+        android:label="@string/tasks_title">
+        <argument
+            android:name="filter"
+            android:defaultValue="ALL"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/taskEditFragment"
+        android:name="com.deepseek.widget.feature.tasks.TaskEditFragment"
+        android:label="@string/tasks_edit">
+        <argument
+            android:name="taskId"
+            android:defaultValue="-1L"
+            app:argType="long" />
+        <argument
+            android:name="entryMode"
+            android:defaultValue="TODAY"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/focusFragment"
+        android:name="com.deepseek.widget.feature.focus.FocusFragment"
+        android:label="@string/focus_title">
+        <argument
+            android:name="taskId"
+            android:defaultValue="-1L"
+            app:argType="long" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/focusHistoryFragment"
+        android:name="com.deepseek.widget.feature.focus.FocusHistoryFragment"
+        android:label="@string/focus_history" />
+
+    <fragment
+        android:id="@+id/reviewArchiveFragment"
+        android:name="com.deepseek.widget.feature.review.ReviewArchiveFragment"
+        android:label="@string/review_archive_title" />
+</navigation>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/workbenchFragment"
+        android:icon="@drawable/ic_tab_workbench"
+        android:title="@string/tab_home" />
+    <item
+        android:id="@+id/taskListFragment"
+        android:icon="@drawable/ic_module_todo"
+        android:title="@string/tab_tasks" />
+    <item
+        android:id="@+id/insightsFragment"
+        android:icon="@drawable/ic_tab_chart"
+        android:title="@string/tab_insights" />
+    <item
+        android:id="@+id/settingsFragment"
+        android:icon="@drawable/ic_tab_settings"
+        android:title="@string/tab_settings" />
+</menu>

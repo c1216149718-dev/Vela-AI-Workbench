@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardBackgroundColor="@color/surface_background"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="0dp"
+    app:strokeColor="@color/widget_border"
+    app:strokeWidth="1dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:padding="18dp">
+
+        <ImageView
+            android:id="@+id/module_icon"
+            android:layout_width="34dp"
+            android:layout_height="34dp"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_module_news" />
+
+        <TextView
+            android:id="@+id/module_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:fontFamily="serif"
+            android:textColor="@color/balance_text"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/module_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:gravity="center"
+            android:textColor="@color/muted_text"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/module_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/badge_background"
+            android:paddingStart="10dp"
+            android:paddingTop="3dp"
+            android:paddingEnd="10dp"
+            android:paddingBottom="3dp"
+            android:text="@string/module_coming_soon"
+            android:textColor="@color/muted_text"
+            android:textSize="10sp" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

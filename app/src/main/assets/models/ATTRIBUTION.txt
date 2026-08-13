@@ -1,0 +1,18 @@
+Moon color and displacement maps
+Source: NASA Scientific Visualization Studio, CGI Moon Kit
+Credit: NASA's Goddard Space Flight Center
+https://svs.gsfc.nasa.gov/4720/
+
+Mars 3D model
+Source: NASA Science 3D Resources
+Credit: NASA/JPL-Caltech
+https://science.nasa.gov/resource/planet-mars-3d-model/
+
+Europa 3D model
+Source: NASA Science 3D Resources
+Credit: NASA Visualization Technology Applications and Development (VTAD)
+https://science.nasa.gov/resource/europa-3d-model/
+
+These NASA-derived assets are redistributed for this informational application
+under the NASA Images and Media Usage Guidelines. NASA does not endorse Vela.
+https://www.nasa.gov/nasa-brand-center/images-and-media/

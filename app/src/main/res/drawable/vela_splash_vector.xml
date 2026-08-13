@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group android:name="sails" android:pivotX="54" android:pivotY="54">
+        <path android:fillColor="#3E3E3A" android:pathData="M27,78 L57,25 C59,37 59,53 53,66 Z" />
+        <path android:fillColor="#D8D4CC" android:pathData="M55,70 C64,57 68,42 64,25 L82,79 C72,74 64,71 55,70 Z" />
+    </group>
+    <group android:name="orbit" android:pivotX="54" android:pivotY="54">
+        <path android:fillColor="@android:color/transparent" android:pathData="M25,71 C15,50 31,28 53,26 M66,28 C83,35 92,52 83,70" android:strokeColor="#8C8982" android:strokeLineCap="round" android:strokeWidth="1.5" />
+        <path android:fillColor="#7797A8" android:pathData="M84,43 A3,3 0,1 1,84 49 A3,3 0,1 1,84 43" />
+    </group>
+    <path
+        android:name="ripple"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M40,83 C48,87 60,87 68,83"
+        android:strokeAlpha="0"
+        android:strokeColor="#7797A8"
+        android:strokeLineCap="round"
+        android:strokeWidth="1.5" />
+</vector>

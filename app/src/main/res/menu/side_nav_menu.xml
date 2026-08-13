@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="专注与记录">
+        <menu>
+            <item android:id="@+id/focusFragment" android:icon="@drawable/ic_drawer_focus" android:title="开始专注" />
+            <item android:id="@+id/focusHistoryFragment" android:icon="@drawable/ic_drawer_history" android:title="专注历史" />
+            <item android:id="@+id/reviewArchiveFragment" android:icon="@drawable/ic_drawer_memo" android:title="每日留言墙" />
+        </menu>
+    </item>
+    <item android:title="数据源">
+        <menu>
+            <item android:id="@+id/deepSeekFragment" android:icon="@drawable/ic_drawer_deepseek" android:title="DeepSeek" />
+            <item android:id="@+id/apiKeyFunFragment" android:icon="@drawable/ic_drawer_apikey" android:title="APIKEY.FUN" />
+            <item android:id="@+id/apiKeyFunKeysFragment" android:icon="@drawable/ic_drawer_key" android:title="密钥管理" />
+        </menu>
+    </item>
+</menu>

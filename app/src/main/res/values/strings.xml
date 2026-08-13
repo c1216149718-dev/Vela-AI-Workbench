@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="side_tools_open">打开 Vela 工具</string>
+    <string name="app_name">Vela</string>
+    <string name="widget_title">AI 账户</string>
+    <string name="widget_today_cost">今日 ¥%1$s</string>
+    <string name="widget_today_cost_empty">今日 ¥--</string>
+    <string name="widget_health_configure">待配置</string>
+    <string name="widget_health_partial_error">部分更新失败</string>
+    <string name="widget_health_attention">余额提醒</string>
+    <string name="widget_health_ok">状态正常</string>
+    <string name="refresh">刷新</string>
+    <string name="deepseek_account">DeepSeek</string>
+    <string name="apikey_fun_account">APIKEY.FUN</string>
+
+    <string name="settings_title">账户与用量</string>
+    <string name="settings_subtitle">DeepSeek · APIKEY.FUN</string>
+    <string name="deepseek_settings">DeepSeek</string>
+    <string name="apikey_fun_settings">APIKEY.FUN</string>
+    <string name="api_key">API Key</string>
+    <string name="deepseek_api_key_hint">DeepSeek API Key</string>
+    <string name="apikey_fun_api_key_hint">在 APIKEY.FUN 面板创建的 API Key</string>
+    <string name="apikey_keys_manage">管理密钥</string>
+    <string name="apikey_keys_manage_count">管理密钥 · %1$d/%2$d</string>
+    <string name="apikey_keys_title">密钥管理</string>
+    <string name="test_connection">测试</string>
+    <string name="save">保存并刷新</string>
+    <string name="refresh_interval">刷新间隔</string>
+    <string name="interval_15min">15 分钟</string>
+    <string name="interval_30min">30 分钟</string>
+    <string name="interval_1hour">1 小时</string>
+    <string name="interval_3hour">3 小时</string>
+    <string name="current_balance_preview">余额预览</string>
+    <string name="account_overview">账户余额</string>
+    <string name="granted_balance">赠送余额 %1$s%2$s</string>
+    <string name="topped_up_balance">充值余额 %1$s%2$s</string>
+    <string name="granted_balance_empty">赠送余额 --</string>
+    <string name="topped_up_balance_empty">充值余额 --</string>
+    <string name="deepseek_usage_note">DeepSeek 分 Key 用量由开放平台按月导出；当前 API 仅提供余额明细。</string>
+    <string name="model_distribution_empty">所选时段暂无模型分布</string>
+
+    <string name="please_set_api_key">请在应用内配置 API Key</string>
+    <string name="not_configured">未配置</string>
+    <string name="loading">正在加载</string>
+    <string name="status_available">可用</string>
+    <string name="status_unavailable">余额不足</string>
+    <string name="status_error">更新失败</string>
+    <string name="last_updated">更新于 %1$s</string>
+    <string name="api_key_saved">设置已保存，正在刷新</string>
+    <string name="at_least_one_key_required">请至少输入一个 API Key</string>
+    <string name="connection_testing">正在测试...</string>
+    <string name="connection_success">连接成功，账户%1$s</string>
+    <string name="connection_success_with_balance">连接成功 · 余额 %1$s%2$s</string>
+    <string name="connection_failed">连接失败</string>
+    <string name="connection_failed_detail">连接失败：%1$s</string>
+    <string name="available">可用</string>
+    <string name="unavailable">余额不足</string>
+    <string name="no_balance_data">尚未获取余额数据</string>
+    <string name="balance_preview_value">余额 %1$s%2$s</string>
+    <string name="currency_amount_value">%1$s%2$s</string>
+    <string name="cost_value">$%1$s</string>
+    <string name="placeholder_value" translatable="false">--</string>
+    <string name="currency_cny_symbol" translatable="false">¥</string>
+    <string name="currency_usd_symbol" translatable="false">$</string>
+    <string name="empty_text" translatable="false"></string>
+    <string name="usage_dashboard">用量对比</string>
+    <string name="usage_dashboard_source">APIKEY.FUN 数据</string>
+    <string name="usage_key_required">配置 APIKEY.FUN Key 后即可查看用量。</string>
+    <string name="usage_loading">正在读取用量...</string>
+    <string name="usage_empty">所选时段暂无调用记录</string>
+    <string name="usage_partial_keys">已读取 %1$s/%2$s 个 API Key，其余连接失败</string>
+    <string name="usage_load_failed">用量读取失败</string>
+    <string name="usage_load_failed_detail">用量读取失败：%1$s</string>
+    <string name="actual_cost">实际扣费</string>
+    <string name="request_count">请求</string>
+    <string name="token_count">Token</string>
+    <string name="daily_trend">每日用量对比</string>
+    <string name="model_ranking">模型调用排行</string>
+    <string name="range_1d">1 天</string>
+    <string name="range_3d">3 天</string>
+    <string name="range_5d">5 天</string>
+    <string name="range_7d">7 天</string>
+    <string name="range_14d">两周</string>
+    <string name="range_28d">四周</string>
+    <string name="range_30d">一月</string>
+    <string name="model_usage_detail">%1$s 次 · %2$s Token · $%3$s</string>
+    <string name="other_models">其他模型</string>
+    <string name="usage_period_title">过去 %1$s</string>
+    <string name="comparison_percentage">较上期 %1$s%2$s%%</string>
+    <string name="comparison_no_change">与上期持平</string>
+    <string name="comparison_new_usage">上期无用量</string>
+    <string name="current_period_legend">━ 本期</string>
+    <string name="previous_period_legend">┄ 上一周期</string>
+
+    <!-- 分页导航 -->
+    <string name="tab_deepseek">DeepSeek</string>
+    <string name="tab_apikey_fun">APIKEY.FUN</string>
+    <string name="tab_workbench">工作台</string>
+    <string name="tab_settings">设置</string>
+    <string name="tab_home">首页</string>
+    <string name="tab_tasks">任务</string>
+    <string name="tab_insights">洞察</string>
+
+    <!-- 工作台 -->
+    <string name="workbench_title">个人工作台</string>
+    <string name="workbench_subtitle">聚合资讯、规划与专注工具，模块持续扩展中</string>
+    <string name="module_coming_soon">敬请期待</string>
+    <string name="module_hot_news">热点资讯</string>
+    <string name="module_hot_news_desc">聚合科技与行业热点</string>
+    <string name="module_github_trending">GitHub 热榜</string>
+    <string name="module_github_trending_desc">追踪热门开源项目</string>
+    <string name="module_daily_plan">每日规划</string>
+    <string name="module_daily_plan_desc">安排今日重点事项</string>
+    <string name="module_alarm">闹钟提醒</string>
+    <string name="module_alarm_desc">定时提醒不错过</string>
+    <string name="module_todo">待办清单</string>
+    <string name="module_todo_desc">记录与跟进待办</string>
+    <string name="module_pomodoro">番茄钟专注</string>
+    <string name="module_pomodoro_desc">专注与休息循环</string>
+
+    <!-- DeepSeek 余额快照追踪 -->
+    <string name="spending_tracker">消耗追踪</string>
+    <string name="balance_delta_source">余额扣减估算 · 非官方用量</string>
+    <string name="balance_delta_empty">连接后会定期记录余额；至少需要两次快照才能估算费用</string>
+    <string name="balance_delta_no_spending">近期未检测到余额扣减；请求数、Token 与模型分布需从官方 Usage 页导出</string>
+    <string name="action_save">保存</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_delete">删除</string>
+
+    <!-- 模型对比度量 -->
+    <string name="metric_cost">费用</string>
+    <string name="metric_requests">请求</string>
+    <string name="metric_tokens">Token</string>
+    <string name="model_usage_detail_metric">%1$s · %2$s Token</string>
+    <string name="cost_value_with_symbol">%1$s%2$s</string>
+    <string name="requests_unit">%1$s 次</string>
+
+    <!-- 设置 -->
+    <string name="apply_refresh_interval">应用并刷新</string>
+    <string name="refresh_interval_applied">刷新间隔已更新</string>
+    <string name="about">关于</string>
+    <string name="about_version">版本 %1$s</string>
+    <string name="about_description">Vela · AI 用量洞察、任务、专注与每日记录。</string>
+
+    <!-- 方案三 UI -->
+    <string name="current_balance">当前余额</string>
+    <string name="granted_label">赠送</string>
+    <string name="topped_up_label">充值</string>
+    <string name="updated_label">更新</string>
+    <string name="source_label">数据源</string>
+    <string name="deepseek_page_subtitle">BALANCE · LEDGER</string>
+    <string name="apikey_fun_page_subtitle">BALANCE · USAGE</string>
+    <string name="key_config_subtitle">MULTI KEY</string>
+    <string name="widget_refresh_subtitle">小组件后台刷新</string>
+
+    <!-- 工作台首页 -->
+    <string name="workbench_greeting_morning">早上好</string>
+    <string name="workbench_greeting_afternoon">下午好</string>
+    <string name="workbench_greeting_evening">晚上好</string>
+    <string name="home_kicker">TODAY</string>
+    <string name="home_header_poem">Quiet progress, clearly seen.</string>
+    <string name="home_today_overview">DAY AT A GLANCE</string>
+    <string name="home_next_caption">One thing at a time.</string>
+    <string name="home_accounts_caption">Signals &amp; spend.</string>
+    <string name="home_review_caption">A note before tomorrow.</string>
+    <string name="home_metric_tasks">项任务完成</string>
+    <string name="home_metric_focus_minutes">分钟专注</string>
+    <string name="home_accounts_meta">账户余额</string>
+    <string name="action_complete">完成任务</string>
+    <string name="workbench_quick_add_hint">输入一项任务……</string>
+    <string name="workbench_quick_add_today">加入今天</string>
+    <string name="workbench_section_today">今天</string>
+    <string name="workbench_section_focus">当前专注</string>
+    <string name="workbench_section_ai">AI 资源</string>
+    <string name="workbench_section_modules">工作域</string>
+    <string name="workbench_section_review">今日复盘</string>
+    <string name="workbench_see_all">查看全部</string>
+    <string name="workbench_start_focus">开始专注</string>
+    <string name="workbench_no_active_focus">无进行中的专注</string>
+    <string name="workbench_focus_ready">READY</string>
+    <string name="workbench_focus_remaining">剩余约 %1$d 分钟 · 计划 %2$d 分钟</string>
+    <string name="workbench_ai_not_configured">去配置</string>
+    <string name="workbench_today_cost">今日消耗</string>
+    <string name="workbench_7d_cost">7 日消耗</string>
+    <string name="workbench_review_placeholder">写复盘</string>
+    <string name="workbench_review_hint">今天做得如何？记下一句</string>
+    <string name="workbench_review_summary">完成 %1$d · 专注 %2$d 分钟</string>
+    <string name="action_view">查看</string>
+    <string name="action_back">返回</string>
+    <string name="home_today_recorded_cost">今日已记录</string>
+    <string name="home_local_usage_source">DeepSeek 本地用量</string>
+    <string name="home_next_action">下一步</string>
+    <string name="home_no_tasks">今天还没有任务</string>
+    <string name="home_add_first_task">写下最重要的一件事</string>
+    <string name="home_task_progress">%1$d / %2$d 完成</string>
+    <string name="home_focus_minutes">%1$d 分钟专注</string>
+    <string name="home_daily_progress">%1$d / %2$d 完成 · %3$d 分钟专注</string>
+    <string name="home_focus_paused">专注已暂停</string>
+    <string name="home_focus_running">正在专注</string>
+    <string name="home_focus_start">专注计时</string>
+    <string name="home_review_saved">今日复盘已保存</string>
+    <string name="home_submit_task">添加任务</string>
+    <string name="home_save_review">保存复盘</string>
+    <string name="review_archive_title">复盘归档</string>
+    <string name="insights_title">AI 洞察</string>
+    <string name="insights_kicker">INSIGHTS</string>
+    <string name="insights_title_short">洞察</string>
+    <string name="insights_subtitle">Signals, spend, and quiet patterns.</string>
+    <string name="insights_sources_caption">Where the numbers begin.</string>
+    <string name="insights_period_seven_days">近 7 天</string>
+    <string name="insights_estimate_note">DeepSeek 估算 · APIKEY.FUN 同步</string>
+    <string name="insights_deepseek_local">余额与本地记账</string>
+    <string name="insights_apikey_live">余额与网站用量</string>
+    <string name="insights_open_provider">查看详情</string>
+    <string name="insights_seven_day_cost">SPEND · 7 DAYS</string>
+    <string name="insights_usage_entries">%1$d 条用量记录</string>
+    <string name="insights_data_sources">数据源</string>
+    <string name="insights_empty_recorded_usage">近 7 天暂无已记录用量</string>
+
+    <!-- 任务 -->
+    <string name="tasks_title">任务</string>
+    <string name="tasks_edit">编辑任务</string>
+    <string name="tasks_new">新建任务</string>
+    <string name="tasks_filter_today">今天</string>
+    <string name="tasks_filter_planned">计划中</string>
+    <string name="tasks_filter_all">全部</string>
+    <string name="tasks_filter_completed">已完成</string>
+    <string name="tasks_empty">暂无任务</string>
+    <string name="tasks_empty_today">今天还没有计划任务</string>
+    <string name="tasks_empty_completed">还没有完成任何任务</string>
+    <string name="tasks_field_title">标题</string>
+    <string name="tasks_field_title_hint">任务标题</string>
+    <string name="tasks_field_notes">备注</string>
+    <string name="tasks_field_notes_hint">可选备注</string>
+    <string name="tasks_field_project">项目</string>
+    <string name="tasks_field_priority">优先级</string>
+    <string name="tasks_field_planned_date">计划日期</string>
+    <string name="tasks_field_due_at">截止时间</string>
+    <string name="tasks_field_reminder_at">提醒时间</string>
+    <string name="tasks_field_estimate">预计分钟</string>
+    <string name="tasks_priority_none">无</string>
+    <string name="tasks_priority_low">低</string>
+    <string name="tasks_priority_medium">中</string>
+    <string name="tasks_priority_high">高</string>
+    <string name="tasks_quick_today">今天</string>
+    <string name="tasks_quick_tomorrow">明天</string>
+    <string name="tasks_quick_clear_date">清除日期</string>
+    <string name="tasks_action_save">保存</string>
+    <string name="tasks_action_delete">删除</string>
+    <string name="tasks_action_cancel">取消</string>
+    <string name="tasks_delete_confirm">确认删除该任务？</string>
+    <string name="tasks_saved">已保存</string>
+    <string name="tasks_deleted">已删除</string>
+    <string name="tasks_title_required">请输入标题</string>
+    <string name="tasks_date_unset">未设置日期</string>
+    <string name="tasks_start_focus">开始专注此任务</string>
+    <string name="tasks_due_unset">设置截止时间</string>
+    <string name="tasks_reminder_unset">设置提醒时间</string>
+    <string name="tasks_estimate_hint">1–1440 分钟</string>
+    <string name="action_clear">清除</string>
+    <string name="tasks_search_hint">搜索任务……</string>
+
+    <!-- 专注 -->
+    <string name="focus_title">专注</string>
+    <string name="focus_default_time" translatable="false">25:00</string>
+    <string name="focus_history">专注历史</string>
+    <string name="focus_preset_15">15 分钟</string>
+    <string name="focus_preset_25">25 分钟</string>
+    <string name="focus_preset_45">45 分钟</string>
+    <string name="focus_preset_60">60 分钟</string>
+    <string name="focus_custom_minutes">自定义分钟数</string>
+    <string name="focus_start">开始专注</string>
+    <string name="focus_pause">暂停</string>
+    <string name="focus_resume">继续</string>
+    <string name="focus_complete">完成</string>
+    <string name="focus_cancel">取消</string>
+    <string name="focus_remaining">剩余时间</string>
+    <string name="focus_status_running">专注中</string>
+    <string name="focus_status_paused">已暂停</string>
+    <string name="focus_linked_task">关联任务</string>
+    <string name="focus_no_task">无关联任务</string>
+    <string name="focus_complete_task_too">同时标记任务完成</string>
+    <string name="focus_completed">专注已完成</string>
+    <string name="focus_cancelled">专注已取消</string>
+    <string name="focus_empty_history">暂无专注记录</string>
+    <string name="focus_history_summary">%1$d 会话 · %2$d 分钟</string>
+    <string name="focus_session_cancelled">已取消</string>
+    <string name="focus_minutes_value">%1$d 分钟</string>
+
+    <!-- 工作台模块 -->
+    <string name="module_tasks">任务</string>
+    <string name="module_tasks_desc">管理今日计划与全部任务</string>
+    <string name="module_focus">专注</string>
+    <string name="module_focus_desc">计时专注与历史记录</string>
+    <string name="module_reports">效率报告</string>
+    <string name="module_reports_desc">查看完成率与消耗趋势</string>
+    <string name="module_inbox">信息收件箱</string>
+    <string name="module_inbox_desc">技术热点与开源新锐</string>
+
+    <!-- 通知 -->
+    <string name="channel_reminders">任务提醒</string>
+    <string name="channel_focus">专注会话</string>
+    <string name="notification_task_reminder">任务提醒</string>
+    <string name="notification_focus_complete">专注已完成</string>
+    <string name="notification_focus_complete_detail">%1$d 分钟专注已完成</string>
+    <string name="notification_focus_cancelled">专注已取消</string>
+    <string name="notifications_not_enabled">通知未开启</string>
+    <string name="action_open_settings">设置</string>
+</resources>

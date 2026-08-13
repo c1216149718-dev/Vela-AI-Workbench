@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- A+C: warm porcelain, misted steel and smoked clay. -->
+
+    <!-- 基底 -->
+    <color name="app_background">#E7E2D8</color>
+    <color name="surface_background">#B8FFFFFF</color>
+    <color name="surface_elevated">#EEE9E0</color>
+    <color name="surface_inner">#8FFFFFFF</color>
+    <color name="widget_card_bg">#72FFFFFF</color>
+    <color name="widget_border">#C8C1B5</color>
+    <color name="divider">#C8C1B5</color>
+    <color name="card_pressed">#52A8A196</color>
+    <color name="apple_blue">#466875</color>
+    <color name="nav_selection_bg">#D8E1E0</color>
+    <color name="bottom_nav_glass">#B3F1EEE6</color>
+    <color name="bottom_nav_glass_border">#D9FFFFFF</color>
+    <color name="bottom_nav_blur_overlay">#A8E8E3D9</color>
+    <color name="bottom_nav_indicator_fill">#8AFFFFFF</color>
+    <color name="bottom_nav_indicator_border">#E0FFFFFF</color>
+    <color name="bottom_nav_indicator_glow">#70466875</color>
+
+    <!-- 文字 -->
+    <color name="balance_text">#252522</color>
+    <color name="label_text">#4B4D48</color>
+    <color name="muted_text">#62645F</color>
+    <color name="faint_text">#858780</color>
+
+    <!-- DeepSeek 主色（灰蓝） -->
+    <color name="deepseek_blue">#466875</color>
+    <color name="deepseek_blue_dark">#36545F</color>
+    <color name="hero_label_blue">#62645F</color>
+
+    <!-- APIKEY.FUN 主色（陶土） -->
+    <color name="apikey_amber">#7B5A4C</color>
+    <color name="apikey_amber_dark">#65473B</color>
+    <color name="hero_label_clay">#6B625D</color>
+
+    <!-- hero 卡片通用 -->
+    <color name="on_hero">#252522</color>
+    <color name="hero_divider">#52A8A196</color>
+    <color name="provider_glass_overlay">#35FFFFFF</color>
+    <color name="glass_button_fill">#4FFFFFFF</color>
+    <color name="glass_icon_fill">#A8FFFFFF</color>
+    <color name="glass_icon_border">#E0FFFFFF</color>
+    <color name="usage_range_track">#38FFFFFF</color>
+    <color name="usage_range_indicator">#A8FFFFFF</color>
+    <color name="widget_icon_bg">#E8FFFFFF</color>
+    <color name="widget_icon_border">#F2FFFFFF</color>
+
+    <!-- 语义色 -->
+    <color name="accent_green">#51755E</color>
+    <color name="accent_orange">#806A48</color>
+    <color name="accent_red">#985954</color>
+    <color name="peak">#985954</color>
+    <color name="comparison_sage">#7E907F</color>
+    <color name="chip_green_bg">#3351755E</color>
+
+    <!-- 小组件 -->
+    <color name="widget_background">#F1ECE3</color>
+    <color name="claude_widget_background">#E6F3EFE8</color>
+    <color name="claude_widget_border">#F8FFFFFF</color>
+    <color name="claude_widget_primary">#252522</color>
+    <color name="claude_widget_secondary">#62645F</color>
+    <color name="claude_widget_divider">#80FFFFFF</color>
+    <color name="claude_widget_button">#B8FFFFFF</color>
+    <color name="claude_green">#51755E</color>
+    <color name="claude_orange">#806A48</color>
+    <color name="claude_red">#985954</color>
+
+    <!-- 工作台模块 -->
+    <color name="module_coral">#8D6258</color>
+    <color name="module_violet">#71697A</color>
+    <color name="module_blue">#526D78</color>
+    <color name="module_amber">#806A48</color>
+    <color name="module_green">#58715E</color>
+    <color name="module_red">#8E5A56</color>
+</resources>
