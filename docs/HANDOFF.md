@@ -1,10 +1,10 @@
 # Vela（DeepSeekWidget）交接报告
 
-更新日期：2026-08-12 12:53（Asia/Shanghai）
+更新日期：2026-08-13 10:52（Asia/Shanghai）
 
-当前状态：**Verified / release-preparation**。`1.20.0` 已完成 E2 右缘休眠入口、C1 显式侧栏导航和 I1 统一线性图标；54 项 JVM 单测、Lint、23 项 Android 16 连接设备测试、APK 结构、点击/拖动/关闭动画及浅深色视觉回归均通过。已补充公开 README、`.gitignore`、资源署名和发布说明，正在初始化并发布到公开 GitHub 仓库 `c1216149718-dev/Vela-AI-Workbench`。真实 APIKEY.FUN 多 Key 数据仍需用户凭据做最终联网验收。
+当前状态：**Verified / public / online-verified**。`1.20.0` 已完成 E2 右缘休眠入口、C1 显式侧栏导航和 I1 统一线性图标；54 项 JVM 单测、Lint、23 项 Android 16 连接设备测试、APK 结构、点击/拖动/关闭动画及浅深色视觉回归均通过。源码已推送到公开 GitHub 仓库 `c1216149718-dev/Vela-AI-Workbench`，GitHub Actions 已通过，`v1.20.0` Release 与 APK 已公开发布并从公网重新下载核验。真实 APIKEY.FUN 多 Key 数据仍需用户凭据做最终联网验收。
 
-GitHub Actions 首轮在 Linux runner 解析 KSP plugin marker 时失败；公开构建已将 Google、Maven Central 和 Gradle Plugin Portal 调整到 Aliyun 镜像之前，并把 Actions 更新到 Node 24 兼容主版本。最终 CI 结论需在推送后复核。
+GitHub Actions 首轮在 Linux runner 解析 KSP plugin marker 时失败；根因是 Aliyun 镜像排在官方插件仓库之前。修复后 Google、Maven Central 和 Gradle Plugin Portal 优先，Aliyun 仅作回退，Actions 也更新到 Node 24 兼容主版本。提交 `baf4ab6` 的 Linux CI 已在 6 分 10 秒内完成单测、Lint 和 debug 构建并通过。
 
 第一优先级：用真实 DeepSeek/APIKEY.FUN 凭据在真机核对 7/14/30/90 天金额、请求、Token 与平台官网一致，并继续复核 SceneView/Filament 长时间运行、暂停恢复和省电模式。
 
@@ -16,7 +16,7 @@ GitHub Actions 首轮在 Linux runner 解析 KSP plugin marker 时失败；公�
 
 后续开发只能从正式源码继续。归档目录不参与 Gradle 构建，也不要把历史 APK、快照或旧源码复制回正式目录。
 
-发布目标：`https://github.com/c1216149718-dev/Vela-AI-Workbench`，默认分支 `main`，版本标签 `v1.20.0`。最终提交、推送和 Release 状态以本报告顶部及发布后复核结果为准。
+公开仓库：`https://github.com/c1216149718-dev/Vela-AI-Workbench`，默认分支 `main`。`v1.20.0` 标签指向 `baf4ab66769dbd4315261c6c5056b43e3e2637af`；Release 为非草稿、非预发布，APK 公网下载摘要与本地一致。
 
 ### 文件分类与快速查找
 
