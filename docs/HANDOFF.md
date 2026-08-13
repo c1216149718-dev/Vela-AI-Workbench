@@ -4,6 +4,8 @@
 
 当前状态：**Verified / release-preparation**。`1.20.0` 已完成 E2 右缘休眠入口、C1 显式侧栏导航和 I1 统一线性图标；54 项 JVM 单测、Lint、23 项 Android 16 连接设备测试、APK 结构、点击/拖动/关闭动画及浅深色视觉回归均通过。已补充公开 README、`.gitignore`、资源署名和发布说明，正在初始化并发布到公开 GitHub 仓库 `c1216149718-dev/Vela-AI-Workbench`。真实 APIKEY.FUN 多 Key 数据仍需用户凭据做最终联网验收。
 
+GitHub Actions 首轮在 Linux runner 解析 KSP plugin marker 时失败；公开构建已将 Google、Maven Central 和 Gradle Plugin Portal 调整到 Aliyun 镜像之前，并把 Actions 更新到 Node 24 兼容主版本。最终 CI 结论需在推送后复核。
+
 第一优先级：用真实 DeepSeek/APIKEY.FUN 凭据在真机核对 7/14/30/90 天金额、请求、Token 与平台官网一致，并继续复核 SceneView/Filament 长时间运行、暂停恢复和省电模式。
 
 ## 1. 唯一工作目录
