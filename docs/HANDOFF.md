@@ -1,8 +1,8 @@
 # Vela（DeepSeekWidget）交接报告
 
-更新日期：2026-08-21 11:35（Asia/Shanghai）
+更新日期：2026-08-22 18:08（Asia/Shanghai）
 
-当前状态：**1.22.1 implementation candidate verified locally + Android 16 emulator；real-provider reconciliation pending**。本轮移除系统 Splash 的粗糙帆形图，只保留主题纯色系统交接层与现有高还原 Activity 品牌页；将 AndroidX Compose Runtime/Foundation/UI 对齐到 1.10.6，修复接口管理快速滚动触发的懒列表复用崩溃；并把浅深两套四组底部花纹从 `1080×320` 以 2× 原生坐标重绘为 `2160×640`。69 项 JVM 单测、Lint、debug/APK 构建与 Android 16 `medium_phone` 的 29 项连接设备测试全部通过；接口管理压力用例覆盖已连接、自定义与十个平台卡片，并完成 50 轮往返快速滑动。真实物理设备、API 26/31 设备矩阵、真实平台凭据数值对账，以及 1.22.0 中已列出的供应商未完成项仍是 **Unverified / incomplete**。`1.20.0` 仍是最近公开发布版本。
+当前状态：**1.22.1 已公开发布为 v1.22.1 Release；real-provider reconciliation pending**。2026-08-22 已将 1.21.0—1.22.1 全部本地实现以提交 `5c9c8c8` 推送 `main`，创建 tag `v1.22.1` 并发布非草稿、非预发布 GitHub Release，附 `Vela-1.22.1-debug.apk`（78,053,223 bytes，SHA-256 与本地一致），匿名公网下载验证 200 OK；推送触发的 Android CI 通过。本轮移除系统 Splash 的粗糙帆形图，只保留主题纯色系统交接层与现有高还原 Activity 品牌页；将 AndroidX Compose Runtime/Foundation/UI 对齐到 1.10.6，修复接口管理快速滚动触发的懒列表复用崩溃；并把浅深两套四组底部花纹从 `1080×320` 以 2× 原生坐标重绘为 `2160×640`。69 项 JVM 单测、Lint、debug/APK 构建与 Android 16 `medium_phone` 的 29 项连接设备测试全部通过；接口管理压力用例覆盖已连接、自定义与十个平台卡片，并完成 50 轮往返快速滑动。真实物理设备、API 26/31 设备矩阵、真实平台凭据数值对账，以及 1.22.0 中已列出的供应商未完成项仍是 **Unverified / incomplete**。
 
 GitHub Actions 首轮在 Linux runner 解析 KSP plugin marker 时失败；根因是 Aliyun 镜像排在官方插件仓库之前。修复后 Google、Maven Central 和 Gradle Plugin Portal 优先，Aliyun 仅作回退，Actions 也更新到 Node 24 兼容主版本。提交 `baf4ab6` 的 Linux CI 已在 6 分 10 秒内完成单测、Lint 和 debug 构建并通过。
 
@@ -49,6 +49,7 @@ docs/                                 交接、架构、实现计划与文件索
 - 当前候选 debug APK：`artifacts/apk/debug/Vela-1.22.1-debug.apk`
 - APK 大小：`78,053,223` bytes
 - APK SHA-256：`50537B55476EA8D09C3C673D2D64EEB9F663D023DD5D9A17C8190D3737017ACF`
+- 该 APK 同时是 GitHub Release `v1.22.1` 的公网资产（2026-08-22 发布，非草稿、非预发布）；匿名下载响应 `Content-Length: 78053223` 与本地一致。tag `v1.22.1` 指向提交 `5c9c8c8c457da1b31d19d9274993d4fd2a16c763`。
 - APK 使用 Android debug 证书和 v2 签名，只用于开发验证，不是商店发布包。
 
 ## 2.1. 2026-08-21 1.22.1 启动、接口管理稳定性与高清花纹修复
