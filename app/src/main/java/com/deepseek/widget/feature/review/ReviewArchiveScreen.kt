@@ -45,6 +45,10 @@ import androidx.compose.ui.unit.dp
 import com.deepseek.widget.domain.model.DailyReview
 import com.deepseek.widget.ui.components.GlassScreen
 import com.deepseek.widget.ui.components.GlassSurface
+import com.deepseek.widget.ui.components.VelaEditorialHeader
+import com.deepseek.widget.ui.components.VelaMotif
+import com.deepseek.widget.ui.components.VelaSectionOrnament
+import com.deepseek.widget.ui.components.VelaTitle
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -61,7 +65,7 @@ fun ReviewArchiveScreen(reviews: List<DailyReview>, onBack: () -> Unit) {
         filtered.groupBy { it.date.take(7) }.toSortedMap(compareByDescending { it })
     }
 
-    GlassScreen(modifier = Modifier.testTag("review_archive_screen")) {
+    GlassScreen(modifier = Modifier.testTag("review_archive_screen"), motif = VelaMotif.DAILY_WALL) {
         LazyVerticalStaggeredGrid(
             columns = StaggeredGridCells.Adaptive(154.dp),
             modifier = Modifier.fillMaxSize(),
@@ -72,12 +76,10 @@ fun ReviewArchiveScreen(reviews: List<DailyReview>, onBack: () -> Unit) {
             item(span = StaggeredGridItemSpan.FullLine) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, "返回") }
-                    Column(Modifier.padding(start = 8.dp)) {
-                        Text("MEMO WALL", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-                        Text("每日留言墙", style = MaterialTheme.typography.headlineSmall)
-                    }
+                    VelaEditorialHeader(VelaTitle.DAILY_WALL, Modifier.padding(start = 8.dp).weight(1f))
                 }
             }
+            item(span = StaggeredGridItemSpan.FullLine) { VelaSectionOrnament(VelaMotif.DAILY_WALL) }
             item(span = StaggeredGridItemSpan.FullLine) {
                 GlassSurface(Modifier.fillMaxWidth(), blurRadius = 22.dp) {
                     Row(Modifier.fillMaxWidth().padding(20.dp), horizontalArrangement = Arrangement.SpaceAround) {

@@ -53,6 +53,10 @@ import androidx.compose.ui.unit.dp
 import com.deepseek.widget.data.ApiKeyFunProfile
 import com.deepseek.widget.ui.components.GlassScreen
 import com.deepseek.widget.ui.components.GlassSurface
+import com.deepseek.widget.ui.components.VelaEditorialHeader
+import com.deepseek.widget.ui.components.VelaMotif
+import com.deepseek.widget.ui.components.VelaSectionOrnament
+import com.deepseek.widget.ui.components.VelaTitle
 
 @Composable
 fun ApiKeyFunKeysScreen(
@@ -75,7 +79,7 @@ fun ApiKeyFunKeysScreen(
         }
     }
 
-    GlassScreen(modifier = Modifier.testTag("apikey_keys_screen")) {
+    GlassScreen(modifier = Modifier.testTag("apikey_keys_screen"), motif = VelaMotif.KEY_MANAGEMENT) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 20.dp, top = 14.dp, end = 20.dp, bottom = 80.dp),
@@ -86,15 +90,7 @@ fun ApiKeyFunKeysScreen(
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "返回")
                     }
-                    Column(modifier = Modifier.padding(start = 8.dp).weight(1f)) {
-                        Text(
-                            "KEY RING",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text("密钥管理", style = MaterialTheme.typography.headlineSmall)
-                    }
+                    VelaEditorialHeader(VelaTitle.KEY_MANAGEMENT, Modifier.padding(start = 8.dp).weight(1f))
                     Surface(
                         onClick = { showAdd = true },
                         modifier = Modifier.size(44.dp),
@@ -142,6 +138,7 @@ fun ApiKeyFunKeysScreen(
                     )
                 }
             }
+            item { VelaSectionOrnament(VelaMotif.KEY_MANAGEMENT) }
         }
         SnackbarHost(
             hostState = snackbar,

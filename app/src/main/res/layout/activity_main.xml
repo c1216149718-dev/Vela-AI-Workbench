@@ -100,6 +100,15 @@
                 app:labelVisibilityMode="unlabeled"
                 app:menu="@menu/bottom_nav_menu" />
         </eightbitlab.com.blurview.BlurView>
+
+        <androidx.compose.ui.platform.ComposeView
+            android:id="@+id/launch_entry_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clickable="true"
+            android:elevation="32dp"
+            android:focusable="true"
+            android:visibility="gone" />
     </FrameLayout>
 
     <com.google.android.material.navigation.NavigationView
@@ -107,7 +116,7 @@
         android:layout_width="288dp"
         android:layout_height="match_parent"
         android:layout_gravity="end"
-        android:background="@drawable/tool_shelf_background"
+        android:background="@drawable/vela_drawer_background"
         android:elevation="12dp"
         app:headerLayout="@layout/navigation_drawer_header"
         app:itemIconPadding="16dp"

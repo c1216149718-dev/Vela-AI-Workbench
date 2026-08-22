@@ -15,5 +15,8 @@ data class AiUsageSyncStateEntity(
     val periodEnd: String,
     val lastSuccessAt: Long? = null,
     val lastAttemptAt: Long,
-    val errorMessage: String = ""
+    val errorMessage: String = "",
+    val status: String = if (errorMessage.isBlank()) "SUCCESS" else "FAILURE",
+    val errorType: String = "",
+    val lastCompletedAt: Long? = lastSuccessAt
 )

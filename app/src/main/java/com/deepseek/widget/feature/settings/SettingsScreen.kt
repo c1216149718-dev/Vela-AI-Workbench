@@ -35,11 +35,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.deepseek.widget.data.ThemeMode
 import com.deepseek.widget.ui.components.GlassScreen
 import com.deepseek.widget.ui.components.GlassSurface
+import com.deepseek.widget.ui.components.VelaEditorialHeader
+import com.deepseek.widget.ui.components.VelaMotif
+import com.deepseek.widget.ui.components.VelaSectionOrnament
+import com.deepseek.widget.ui.components.VelaTitle
 import com.deepseek.widget.ui.components.ProviderBrand
 import com.deepseek.widget.ui.components.ProviderIdentity
 import com.deepseek.widget.ui.theme.LocalWorkbenchColors
@@ -52,20 +55,17 @@ fun SettingsScreen(
     onThemeModeChange: (ThemeMode) -> Unit,
     onRefreshIntervalChange: (Int) -> Unit,
     onApplyRefreshInterval: () -> Unit,
-    onDeepSeekClick: () -> Unit,
-    onApiKeyFunClick: () -> Unit,
+    onConnectionsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    GlassScreen(modifier) {
+    GlassScreen(modifier, motif = VelaMotif.SETTINGS) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 20.dp, top = 30.dp, end = 20.dp, bottom = 126.dp),
             verticalArrangement = Arrangement.spacedBy(28.dp)
         ) {
             item {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("SETTINGS", style = MaterialTheme.typography.headlineLarge)
-                }
+                VelaEditorialHeader(VelaTitle.SETTINGS)
             }
             item {
                 GlassSurface(modifier = Modifier.fillMaxWidth()) {
@@ -77,19 +77,24 @@ fun SettingsScreen(
             }
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    SectionTitle("数据源", "SOURCES")
+                    VelaEditorialHeader(VelaTitle.CONNECTIONS_CREDENTIALS)
                     GlassSurface(modifier = Modifier.fillMaxWidth()) {
-                        Column {
-                            ProviderSettingsRow(ProviderBrand.DEEPSEEK, "DeepSeek", onDeepSeekClick)
-                            HorizontalDivider(modifier = Modifier.padding(start = 76.dp), color = LocalWorkbenchColors.current.border)
-                            ProviderSettingsRow(ProviderBrand.APIKEY_FUN, "APIKEY.FUN", onApiKeyFunClick)
+                        Row(
+                            modifier = Modifier.fillMaxWidth().clickable(onClick = onConnectionsClick).padding(20.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(Modifier.weight(1f)) {
+                                Text("统一管理供应商连接", style = MaterialTheme.typography.titleMedium)
+                                Text("添加、测试、导入账单与同步设置", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                            Icon(Icons.Rounded.ChevronRight, contentDescription = "进入连接与凭据")
                         }
                     }
                 }
             }
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    SectionTitle("小组件", "WIDGET")
+                    VelaEditorialHeader(VelaTitle.WIDGET)
                     GlassSurface(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                             SettingsHeading(Icons.Rounded.Refresh, "刷新间隔", "BACKGROUND UPDATE")
@@ -123,6 +128,7 @@ fun SettingsScreen(
                     }
                 }
             }
+            item { VelaSectionOrnament(VelaMotif.SETTINGS) }
         }
     }
 }
@@ -216,13 +222,5 @@ private fun SettingsHeading(icon: androidx.compose.ui.graphics.vector.ImageVecto
             Text(title, style = MaterialTheme.typography.titleMedium)
             Text(subtitle, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
-    }
-}
-
-@Composable
-private fun SectionTitle(title: String, english: String) {
-    Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(title, style = MaterialTheme.typography.headlineSmall)
-        Text(english, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.SemiBold)
     }
 }

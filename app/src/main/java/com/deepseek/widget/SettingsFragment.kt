@@ -50,8 +50,7 @@ class SettingsFragment : Fragment() {
                         WidgetUpdateWorker.schedulePeriodic(requireContext())
                         Toast.makeText(requireContext(), R.string.refresh_interval_applied, Toast.LENGTH_SHORT).show()
                     },
-                    onDeepSeekClick = { findNavController().navigate(R.id.deepSeekFragment) },
-                    onApiKeyFunClick = { findNavController().navigate(R.id.apiKeyFunFragment) }
+                    onConnectionsClick = { findNavController().navigate(R.id.dataSourceCenterFragment) }
                 )
             }
         }

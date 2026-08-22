@@ -55,9 +55,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.deepseek.widget.data.repository.UsageDailyRecord
 import com.deepseek.widget.data.repository.UsageModelRecord
-import com.deepseek.widget.data.repository.UsageProvider
+import com.deepseek.widget.data.provider.ProviderId
+import com.deepseek.widget.data.provider.ProviderRegistry
 import com.deepseek.widget.ui.components.GlassScreen
 import com.deepseek.widget.ui.components.GlassSurface
+import com.deepseek.widget.ui.components.VelaEditorialHeader
+import com.deepseek.widget.ui.components.VelaMotif
+import com.deepseek.widget.ui.components.VelaSectionOrnament
+import com.deepseek.widget.ui.components.VelaTitle
 import java.math.BigDecimal
 import java.time.format.DateTimeFormatter
 import java.util.Date
@@ -72,7 +77,7 @@ fun UsageDetailScreen(
     onRefresh: () -> Unit
 ) {
     var metric by remember { mutableStateOf(UsageMetric.COST) }
-    GlassScreen {
+    GlassScreen(motif = VelaMotif.USAGE_DETAIL) {
         LazyColumn(
             Modifier.fillMaxSize(),
             contentPadding = PaddingValues(20.dp, 18.dp, 20.dp, 112.dp),
@@ -82,7 +87,7 @@ fun UsageDetailScreen(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, "返回") }
                     Column(Modifier.weight(1f)) {
-                        Text("用量详情", style = MaterialTheme.typography.headlineMedium)
+                        VelaEditorialHeader(VelaTitle.USAGE_DETAIL)
                         Text(detailRefreshLabel(state.lastRefreshAt), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     IconButton(onClick = onRefresh, enabled = !state.isRefreshing) { Icon(Icons.Rounded.Refresh, "刷新用量") }
@@ -91,10 +96,10 @@ fun UsageDetailScreen(
             item { DetailRangeSelector(state.selectedDays, onRangeChange) }
             item { TotalDetailCard(state) }
             item { MetricSelector(metric) { metric = it } }
-            item { ProviderTrendCard("DeepSeek · 估算", UsageProvider.DEEPSEEK, state, metric) }
-            item { ProviderTrendCard("APIKEY.FUN · 实扣", UsageProvider.APIKEY_FUN, state, metric) }
+            item { CombinedTrendCharts(state, metric) }
             item { ExactDailyList(state, metric) }
             item { ModelDistribution(state, metric) }
+            item { VelaSectionOrnament(VelaMotif.USAGE_DETAIL) }
         }
     }
 }
@@ -113,7 +118,8 @@ private fun TotalDetailCard(state: InsightsUiState) {
     GlassSurface(Modifier.fillMaxWidth(), RoundedCornerShape(22.dp)) {
         Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
             Text("全部平台", style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.primary)
-            Text(formatCurrencyTotals(state.totalsByCurrency), style = MaterialTheme.typography.headlineLarge.copy(fontFamily = FontFamily.Monospace, fontFeatureSettings = "tnum"))
+            Text(state.totalsByCurrency.takeIf { it.isNotEmpty() }?.let(::formatCurrencyTotals) ?: "暂无实扣记录", style = MaterialTheme.typography.headlineLarge.copy(fontFamily = FontFamily.Monospace, fontFeatureSettings = "tnum"))
+            if (state.estimatedTotalsByCurrency.isNotEmpty()) Text("估算/本地记录 ${formatCurrencyTotals(state.estimatedTotalsByCurrency)}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text("${formatLong(state.totalRequests)} 次请求 · ${formatLong(state.totalTokens)} Token", color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text("金额按币种分别统计", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
@@ -130,17 +136,63 @@ private fun MetricSelector(metric: UsageMetric, onChange: (UsageMetric) -> Unit)
 }
 
 @Composable
-private fun ProviderTrendCard(title: String, provider: UsageProvider, state: InsightsUiState, metric: UsageMetric) {
+private fun CombinedTrendCharts(state: InsightsUiState, metric: UsageMetric) {
     val dates = remember(state.startDate, state.selectedDays) {
         generateSequence(state.startDate) { it.plusDays(1) }.take(state.selectedDays).toList()
     }
-    val rows = state.daily.filter { it.provider == provider }
-    val values = dates.map { date -> rows.filter { it.date == date }.sumMetric(metric) }
-    GlassSurface(Modifier.fillMaxWidth(), RoundedCornerShape(22.dp)) {
-        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(title, style = MaterialTheme.typography.titleLarge, modifier = Modifier.semantics { heading() })
-            Text(metricHint(provider, metric), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            VicoUsageChart(dates, values, metricUnit(metric))
+    val palette = listOf(
+        MaterialTheme.colorScheme.primary,
+        MaterialTheme.colorScheme.tertiary,
+        MaterialTheme.colorScheme.secondary,
+        Color(0xFFB86B4B), Color(0xFF4F8F7B), Color(0xFF7B6BA8), Color(0xFFB58A3D), Color(0xFF4D7C9B)
+    )
+    val currencies = if (metric == UsageMetric.COST) listOf("CNY", "USD") else listOf("")
+    Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        currencies.forEach { currency ->
+            val scoped = if (currency.isBlank()) state.daily else state.daily.filter { it.currency.equals(currency, true) }
+            val providerRows = scoped.groupBy { it.provider }.toList().sortedBy { ProviderRegistry.descriptor(it.first.value)?.displayName ?: it.first.value }
+            val series = providerRows.mapIndexed { index, (provider, rows) ->
+                UsageChartSeries(
+                    label = ProviderRegistry.descriptor(provider.value)?.displayName ?: provider.value,
+                    values = dates.map { date -> rows.filter { it.date == date }.sumMetric(metric) },
+                    color = palette[index % palette.size],
+                    dashed = index % 3 == 2
+                )
+            }
+            GlassSurface(Modifier.fillMaxWidth(), RoundedCornerShape(22.dp)) {
+                Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        if (metric == UsageMetric.COST) "$currency 费用趋势" else "全供应商${metricUnit(metric)}趋势",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.semantics { heading() }
+                    )
+                    Text("同一图表按供应商区分；长按或拖动查看单日值", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (providerRows.isEmpty()) {
+                        Text("该范围暂无${if (currency.isBlank()) "用量" else currency + "费用"}记录", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    } else {
+                        ProviderLegend(providerRows.map { it.first }, palette)
+                        VicoMultiUsageChart(dates, series, metricUnit(metric))
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ProviderLegend(providers: List<ProviderId>, palette: List<Color>) {
+    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        providers.chunked(3).forEach { rowProviders ->
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                rowProviders.forEach { provider ->
+                    val index = providers.indexOf(provider)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Surface(Modifier.size(9.dp), CircleShape, color = palette[index % palette.size]) {}
+                        Spacer(Modifier.width(5.dp))
+                        Text(ProviderRegistry.descriptor(provider.value)?.displayName ?: provider.value, style = MaterialTheme.typography.labelSmall)
+                    }
+                }
+            }
         }
     }
 }
@@ -167,10 +219,10 @@ private fun ExactDailyList(state: InsightsUiState, metric: UsageMetric) {
                     grouped.forEach { (date, rows) ->
                         Column(Modifier.fillMaxWidth().padding(vertical = 3.dp)) {
                             Text(date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")), fontWeight = FontWeight.SemiBold)
-                            UsageProvider.entries.forEach { provider ->
+                            rows.map { it.provider }.distinct().forEach { provider ->
                                 val providerRows = rows.filter { it.provider == provider }
                                 if (providerRows.isNotEmpty()) {
-                                    val name = if (provider == UsageProvider.DEEPSEEK) "DeepSeek" else "APIKEY.FUN"
+                                    val name = ProviderRegistry.descriptor(provider.value)?.displayName ?: provider.value
                                     Text("$name  ${providerRows.metricText(metric)}", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 }
                             }
@@ -345,9 +397,9 @@ private fun List<UsageDailyRecord>.metricText(metric: UsageMetric): String = whe
     UsageMetric.TOKENS -> "${formatLong(sumOf { it.totalTokens })} Token"
 }
 
-private fun metricHint(provider: UsageProvider, metric: UsageMetric): String = when {
-    provider == UsageProvider.DEEPSEEK && metric != UsageMetric.COST -> "仅显示本地账本记录"
-    provider == UsageProvider.DEEPSEEK -> "余额差估算"
+private fun metricHint(provider: ProviderId, metric: UsageMetric): String = when {
+    provider == ProviderRegistry.DEEPSEEK && metric != UsageMetric.COST -> "仅显示本地账本记录"
+    provider == ProviderRegistry.DEEPSEEK -> "余额差估算"
     else -> "长按或拖动图表查看单日值"
 }
 
@@ -367,4 +419,3 @@ private fun detailRefreshLabel(value: Long?): String {
     val context = LocalContext.current
     return "最后刷新 ${DateFormat.getDateFormat(context).format(Date(value))} ${DateFormat.getTimeFormat(context).format(Date(value))}"
 }
-

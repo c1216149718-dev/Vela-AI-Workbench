@@ -17,8 +17,8 @@ android {
         applicationId = "com.deepseek.widget"
         minSdk = 26
         targetSdk = 36
-        versionCode = 25
-        versionName = "1.20.0"
+        versionCode = 29
+        versionName = "1.22.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -79,7 +79,10 @@ dependencies {
     implementation("androidx.drawerlayout:drawerlayout:1.2.0")
 
     // Compose 1.10 aligns with the stable Haze 1.7 material implementation.
-    val composeBom = platform("androidx.compose:compose-bom:2025.12.00")
+    // 2026.03.01 aligns Runtime/Foundation/UI on Compose 1.10.6. This patch
+    // fixes the lazy-layout reuse crash present in 1.10.5 without moving the
+    // application onto a new Compose feature line.
+    val composeBom = platform("androidx.compose:compose-bom:2026.03.01")
     implementation(composeBom)
     androidTestImplementation(composeBom)
     implementation("androidx.compose.ui:ui")

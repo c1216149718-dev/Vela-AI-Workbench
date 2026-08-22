@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
+import com.deepseek.widget.data.security.SecureCredentialStore
 import java.io.File
 import java.util.UUID
 
@@ -28,7 +29,10 @@ import java.util.UUID
  * - 余额主 Key（isPrimaryForBalance）全局唯一。
  * - 删除余额主 Key 前必须先指定另一个主 Key；最后一个 Key 可直接删除。
  */
-class ApiKeyFunProfileStore(internal val dataStore: DataStore<Preferences>) {
+class ApiKeyFunProfileStore(
+    internal val dataStore: DataStore<Preferences>,
+    private val secureCredentials: SecureCredentialStore? = null
+) {
 
     private val json = Json { ignoreUnknownKeys = true }
 
@@ -53,7 +57,10 @@ class ApiKeyFunProfileStore(internal val dataStore: DataStore<Preferences>) {
     }
 
     suspend fun getSecret(id: String): String? =
-        dataStore.data.first()[secretKey(id)]?.takeIf { it.isNotBlank() }
+        secureCredentials?.get(secureReference(id))?.takeIf { it.isNotBlank() }
+            ?: dataStore.data.first()[secretKey(id)]?.takeIf { it.isNotBlank() }
+
+    private fun secureReference(id: String) = "apikeyfun:$id:api_key"
 
     suspend fun getPrimaryProfile(): ApiKeyFunProfile? =
         getProfiles().firstOrNull { it.isPrimaryForBalance && it.enabled }
@@ -114,9 +121,11 @@ class ApiKeyFunProfileStore(internal val dataStore: DataStore<Preferences>) {
                 )
             )
         }
+        secureCredentials?.put(secureReference(id), key)
         dataStore.edit { prefs ->
             prefs[profilesKey] = json.encodeToString(profilesSerializer, updated)
-            prefs[secretKey(id)] = key
+            if (secureCredentials == null) prefs[secretKey(id)] = key
+            else prefs.remove(secretKey(id))
         }
         return AddKeyResult.Added(updated.last())
     }
@@ -147,7 +156,10 @@ class ApiKeyFunProfileStore(internal val dataStore: DataStore<Preferences>) {
         if (match != null) {
             if (!match.isPrimaryForBalance) setPrimary(match.id)
             if (!match.enabled) setEnabled(match.id, true)
-            dataStore.edit { it[secretKey(match.id)] = key }
+            if (secureCredentials != null) {
+                secureCredentials.put(secureReference(match.id), key)
+                dataStore.edit { it.remove(secretKey(match.id)) }
+            } else dataStore.edit { it[secretKey(match.id)] = key }
             return SavePrimaryResult.Promoted(getProfiles().first { it.id == match.id })
         }
         val primary = current.firstOrNull { it.isPrimaryForBalance }
@@ -181,9 +193,11 @@ class ApiKeyFunProfileStore(internal val dataStore: DataStore<Preferences>) {
         if (current.none { it.id == id }) return ReplaceSecretResult.NotFound
         if (current.any { it.id != id && it.fingerprint == fp }) return ReplaceSecretResult.AlreadyExists
         val updated = current.map { if (it.id == id) it.copy(fingerprint = fp) else it }
+        secureCredentials?.put(secureReference(id), key)
         dataStore.edit { prefs ->
             prefs[profilesKey] = json.encodeToString(profilesSerializer, updated)
-            prefs[secretKey(id)] = key
+            if (secureCredentials == null) prefs[secretKey(id)] = key
+            else prefs.remove(secretKey(id))
         }
         return ReplaceSecretResult.Updated(updated.first { it.id == id })
     }
@@ -224,6 +238,7 @@ class ApiKeyFunProfileStore(internal val dataStore: DataStore<Preferences>) {
             prefs[profilesKey] = json.encodeToString(profilesSerializer, updated)
             prefs.remove(secretKey(id))
         }
+        secureCredentials?.remove(secureReference(id))
         return DeleteProfileResult.Deleted
     }
 
@@ -250,13 +265,29 @@ class ApiKeyFunProfileStore(internal val dataStore: DataStore<Preferences>) {
         }
     }
 
+    /** Existing profile secrets are copied, verified, then removed from DataStore. */
+    suspend fun migrateSecretsToSecure(): Int {
+        val store = secureCredentials ?: return 0
+        var migrated = 0
+        getProfiles().forEach { profile ->
+            val old = dataStore.data.first()[secretKey(profile.id)].orEmpty()
+            if (old.isBlank()) return@forEach
+            store.put(secureReference(profile.id), old)
+            if (store.get(secureReference(profile.id)) == old) {
+                dataStore.edit { it.remove(secretKey(profile.id)) }
+                migrated++
+            }
+        }
+        return migrated
+    }
+
     // endregion
 
     companion object {
         internal val legacyKeyKey = stringPreferencesKey("apikey_fun_api_key")
 
         fun create(context: Context): ApiKeyFunProfileStore =
-            ApiKeyFunProfileStore(context.dataStore)
+            ApiKeyFunProfileStore(context.dataStore, SecureCredentialStore(context))
 
         /** 仅供 JVM 单测：基于临时文件构造独立 DataStore。 */
         fun createForTest(file: File): ApiKeyFunProfileStore =

@@ -22,6 +22,15 @@ interface TaskDao {
     @Query("SELECT * FROM tasks WHERE plannedDate = :date AND status != 'CANCELLED' ORDER BY status = 'DONE', priority DESC, sortOrder ASC")
     fun observeTodayOverview(date: String): Flow<List<TaskEntity>>
 
+    @Query(
+        "SELECT * FROM tasks WHERE " +
+            "((plannedDate = :date) OR (plannedDate IS NULL AND status = 'BACKLOG')) " +
+            "AND status NOT IN ('CANCELLED','DONE') " +
+            "ORDER BY CASE WHEN plannedDate = :date THEN 0 ELSE 1 END, " +
+            "priority DESC, updatedAt DESC, sortOrder ASC"
+    )
+    fun observeNextSteps(date: String): Flow<List<TaskEntity>>
+
     @Query("SELECT * FROM tasks WHERE status = 'PLANNED' ORDER BY plannedDate ASC, priority DESC, sortOrder ASC")
     fun observePlanned(): Flow<List<TaskEntity>>
 

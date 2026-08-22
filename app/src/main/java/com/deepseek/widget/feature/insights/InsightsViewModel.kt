@@ -10,7 +10,9 @@ import com.deepseek.widget.data.AppPreferences
 import com.deepseek.widget.data.repository.AiUsageRepository
 import com.deepseek.widget.data.repository.UsageDailyRecord
 import com.deepseek.widget.data.repository.UsageModelRecord
-import com.deepseek.widget.data.repository.UsageProvider
+import com.deepseek.widget.data.provider.ProviderId
+import com.deepseek.widget.data.provider.ProviderRegistry
+import com.deepseek.widget.data.provider.ProviderProfileRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -33,8 +35,11 @@ data class InsightsUiState(
     val startDate: LocalDate = LocalDate.now().minusDays(6),
     val endDate: LocalDate = LocalDate.now(),
     val totalsByCurrency: Map<String, BigDecimal> = emptyMap(),
-    val providerTotals: Map<UsageProvider, Map<String, BigDecimal>> = emptyMap(),
+    val estimatedTotalsByCurrency: Map<String, BigDecimal> = emptyMap(),
+    val providerTotals: Map<ProviderId, Map<String, BigDecimal>> = emptyMap(),
+    val providerEstimatedTotals: Map<ProviderId, Map<String, BigDecimal>> = emptyMap(),
     val daily: List<UsageDailyRecord> = emptyList(),
+    val previousDaily: List<UsageDailyRecord> = emptyList(),
     val models: List<UsageModelRecord> = emptyList(),
     val usageEntryCount: Int = 0,
     val totalRequests: Long = 0,
@@ -42,6 +47,7 @@ data class InsightsUiState(
     val lastRefreshAt: Long? = null,
     val failedSources: Int = 0,
     val configuredSources: Int = 0,
+    val connectedProviders: Set<ProviderId> = emptySet(),
     val contentState: UsageContentState = UsageContentState.LOADING,
     val isRefreshing: Boolean = false
 )
@@ -49,7 +55,8 @@ data class InsightsUiState(
 class InsightsViewModel(
     private val repository: AiUsageRepository,
     private val appPreferences: AppPreferences,
-    profiles: ApiKeyFunProfileStore
+    profiles: ApiKeyFunProfileStore,
+    providerProfiles: ProviderProfileRepository
 ) : ViewModel() {
     private val selectedDays = MutableStateFlow(7)
     private val refreshing = MutableStateFlow(false)
@@ -63,23 +70,33 @@ class InsightsViewModel(
     ) { deepSeek, apiKeyFun -> deepSeek to apiKeyFun }
     private val configuration = combine(
         appPreferences.deepSeekApiKey,
-        profiles.observeProfiles()
-    ) { deepSeekKey, apiProfiles ->
-        (if (deepSeekKey.isNotBlank()) 1 else 0) + apiProfiles.count { it.enabled }
+        providerProfiles.observeProfiles()
+    ) { deepSeekKey, unifiedProfiles ->
+        val ids = unifiedProfiles.filter { it.enabled }.mapNotNull { ProviderRegistry.canonicalId(it.providerId) }.toSet()
+        val withLegacyDeepSeek = if (deepSeekKey.isNotBlank()) ids + ProviderRegistry.DEEPSEEK else ids
+        withLegacyDeepSeek.size to withLegacyDeepSeek
     }
 
     val uiState: StateFlow<InsightsUiState> = combine(
         snapshot, accountPair, configuration, selectedDays, refreshing
-    ) { data, accounts, configured, days, isRefreshing ->
-        val totalByCurrency = data.daily.groupBy { it.currency.normalizedCurrency() }
+    ) { data, accounts, configurationState, days, isRefreshing ->
+        val (configured, connectedProviders) = configurationState
+        val totalByCurrency = data.daily.filter { it.exact }.groupBy { it.currency.normalizedCurrency() }
             .mapValues { (_, rows) -> rows.sumMoney() }
-        val providerTotals = UsageProvider.entries.associateWith { provider ->
-            data.daily.filter { it.provider == provider }
+        val estimatesByCurrency = data.daily.filterNot { it.exact }.groupBy { it.currency.normalizedCurrency() }
+            .mapValues { (_, rows) -> rows.sumMoney() }
+        val providerTotals = data.daily.map { it.provider }.distinct().associateWith { provider ->
+            data.daily.filter { it.provider == provider && it.exact }
+                .groupBy { it.currency.normalizedCurrency() }
+                .mapValues { (_, rows) -> rows.sumMoney() }
+        }
+        val providerEstimatedTotals = data.daily.map { it.provider }.distinct().associateWith { provider ->
+            data.daily.filter { it.provider == provider && !it.exact }
                 .groupBy { it.currency.normalizedCurrency() }
                 .mapValues { (_, rows) -> rows.sumMoney() }
         }
         val relevantSync = data.syncStates.filter { state ->
-            state.provider == UsageProvider.DEEPSEEK || state.credentialId.isNotBlank()
+            state.provider == ProviderRegistry.DEEPSEEK || state.credentialId.isNotBlank()
         }
         val failed = relevantSync.count { it.errorMessage.isNotBlank() }
         val lastSuccess = relevantSync.mapNotNull { it.lastSuccessAt }.maxOrNull()
@@ -99,8 +116,11 @@ class InsightsViewModel(
             startDate = data.startDate,
             endDate = data.endDate,
             totalsByCurrency = totalByCurrency,
+            estimatedTotalsByCurrency = estimatesByCurrency,
             providerTotals = providerTotals,
+            providerEstimatedTotals = providerEstimatedTotals,
             daily = data.daily,
+            previousDaily = data.previousDaily,
             models = data.models,
             usageEntryCount = data.daily.size,
             totalRequests = data.daily.sumOf { it.requests },
@@ -108,6 +128,7 @@ class InsightsViewModel(
             lastRefreshAt = lastSuccess,
             failedSources = failed,
             configuredSources = configured,
+            connectedProviders = connectedProviders,
             contentState = state,
             isRefreshing = isRefreshing
         )
@@ -147,11 +168,12 @@ class InsightsViewModel(
         fun factory(
             repository: AiUsageRepository,
             appPreferences: AppPreferences,
-            profiles: ApiKeyFunProfileStore
+            profiles: ApiKeyFunProfileStore,
+            providerProfiles: ProviderProfileRepository
         ) = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>): T =
-                InsightsViewModel(repository, appPreferences, profiles) as T
+                InsightsViewModel(repository, appPreferences, profiles, providerProfiles) as T
         }
     }
 }
@@ -161,7 +183,7 @@ private fun List<UsageDailyRecord>.sumMoney(): BigDecimal =
     fold(BigDecimal.ZERO) { total, row -> total + row.cost }
 
 data class RankedModel(
-    val provider: UsageProvider?,
+    val provider: ProviderId?,
     val credentialLabel: String,
     val model: String,
     val currency: String,
@@ -212,7 +234,8 @@ internal fun RankedModel.compactMetricText(metric: UsageMetric): String = when (
 }
 
 internal fun RankedModel.providerLabel(): String = when (provider) {
-    UsageProvider.DEEPSEEK -> "DeepSeek"
-    UsageProvider.APIKEY_FUN -> "APIKEY.FUN"
+    ProviderRegistry.DEEPSEEK -> "DeepSeek"
+    ProviderRegistry.APIKEY_FUN -> "APIKEY.FUN"
     null -> "多平台"
+    else -> ProviderRegistry.descriptor(provider.value)?.displayName ?: provider.value
 }

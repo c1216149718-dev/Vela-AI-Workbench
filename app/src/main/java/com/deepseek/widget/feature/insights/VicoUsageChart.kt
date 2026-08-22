@@ -8,6 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -17,6 +19,7 @@ import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLine
 import com.patrykandpatrick.vico.compose.cartesian.layer.continuous
+import com.patrykandpatrick.vico.compose.cartesian.layer.dashed
 import com.patrykandpatrick.vico.compose.cartesian.marker.rememberDefaultCartesianMarker
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.cartesian.rememberVicoScrollState
@@ -29,6 +32,7 @@ import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
 import com.patrykandpatrick.vico.core.cartesian.marker.DefaultCartesianMarker
 import com.patrykandpatrick.vico.core.cartesian.marker.LineCartesianLayerMarkerTarget
 import com.patrykandpatrick.vico.core.cartesian.layer.LineCartesianLayer
+import com.patrykandpatrick.vico.core.common.Fill
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.math.ceil
@@ -41,18 +45,42 @@ internal fun VicoUsageChart(
     spokenUnit: String,
     modifier: Modifier = Modifier
 ) {
+    VicoMultiUsageChart(
+        dates = dates,
+        series = listOf(UsageChartSeries("用量", values, MaterialTheme.colorScheme.primary)),
+        spokenUnit = spokenUnit,
+        modifier = modifier
+    )
+}
+
+internal data class UsageChartSeries(
+    val label: String,
+    val values: List<Double>,
+    val color: Color,
+    val dashed: Boolean = false
+)
+
+@Composable
+internal fun VicoMultiUsageChart(
+    dates: List<LocalDate>,
+    series: List<UsageChartSeries>,
+    spokenUnit: String,
+    modifier: Modifier = Modifier
+) {
     val producer = remember { CartesianChartModelProducer() }
-    val points = remember(dates, values) {
-        dates.mapIndexed { index, date -> date to values.getOrElse(index) { 0.0 } }
-            .ifEmpty { listOf(LocalDate.now() to 0.0) }
+    val safeDates = remember(dates) { dates.ifEmpty { listOf(LocalDate.now()) } }
+    val safeSeries = remember(series, safeDates) {
+        series.ifEmpty { listOf(UsageChartSeries("暂无数据", List(safeDates.size) { 0.0 }, Color.Gray)) }
     }
-    LaunchedEffect(points) {
+    LaunchedEffect(safeDates, safeSeries) {
         producer.runTransaction {
             lineSeries {
-                series(
-                    x = points.map { (date, _) -> date.toEpochDay().toDouble() },
-                    y = points.map { (_, value) -> value }
-                )
+                safeSeries.forEach { item ->
+                    series(
+                        x = safeDates.map { it.toEpochDay().toDouble() },
+                        y = safeDates.indices.map { index -> item.values.getOrElse(index) { 0.0 } }
+                    )
+                }
             }
         }
     }
@@ -73,19 +101,25 @@ internal fun VicoUsageChart(
         label = rememberTextComponent(color = MaterialTheme.colorScheme.onSurface),
         valueFormatter = markerFormatter
     )
-    val spacing = ceil((points.size - 1).coerceAtLeast(1) / 4.0).toInt().coerceAtLeast(1)
+    val spacing = ceil((safeDates.size - 1).coerceAtLeast(1) / 4.0).toInt().coerceAtLeast(1)
     val motionEnabled = remember { ValueAnimator.areAnimatorsEnabled() }
-    val spoken = points.joinToString("，") { (date, value) ->
-        "${date.format(DateTimeFormatter.ofPattern("M月d日"))} ${value.pretty()} $spokenUnit"
+    val spoken = safeSeries.joinToString("；") { item ->
+        item.label + "：" + safeDates.mapIndexed { index, date ->
+            "${date.format(DateTimeFormatter.ofPattern("M月d日"))} ${item.values.getOrElse(index) { 0.0 }.pretty()} $spokenUnit"
+        }.joinToString("，")
+    }
+    val lines = safeSeries.map { item ->
+        LineCartesianLayer.rememberLine(
+            fill = LineCartesianLayer.LineFill.single(Fill(item.color.toArgb())),
+            stroke = if (item.dashed) {
+                LineCartesianLayer.LineStroke.dashed(thickness = 3.dp, dashLength = 5.dp, gapLength = 4.dp)
+            } else LineCartesianLayer.LineStroke.continuous(3.dp)
+        )
     }
     CartesianChartHost(
         chart = rememberCartesianChart(
             rememberLineCartesianLayer(
-                lineProvider = LineCartesianLayer.LineProvider.series(
-                    LineCartesianLayer.rememberLine(
-                        stroke = LineCartesianLayer.LineStroke.continuous(3.dp)
-                    )
-                )
+                lineProvider = LineCartesianLayer.LineProvider.series(lines)
             ),
             startAxis = VerticalAxis.rememberStart(),
             bottomAxis = HorizontalAxis.rememberBottom(

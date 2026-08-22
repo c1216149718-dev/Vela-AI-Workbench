@@ -1,12 +1,12 @@
 # Vela（DeepSeekWidget）交接报告
 
-更新日期：2026-08-13 10:52（Asia/Shanghai）
+更新日期：2026-08-21 11:35（Asia/Shanghai）
 
-当前状态：**Verified / public / online-verified**。`1.20.0` 已完成 E2 右缘休眠入口、C1 显式侧栏导航和 I1 统一线性图标；54 项 JVM 单测、Lint、23 项 Android 16 连接设备测试、APK 结构、点击/拖动/关闭动画及浅深色视觉回归均通过。源码已推送到公开 GitHub 仓库 `c1216149718-dev/Vela-AI-Workbench`，GitHub Actions 已通过，`v1.20.0` Release 与 APK 已公开发布并从公网重新下载核验。真实 APIKEY.FUN 多 Key 数据仍需用户凭据做最终联网验收。
+当前状态：**1.22.1 implementation candidate verified locally + Android 16 emulator；real-provider reconciliation pending**。本轮移除系统 Splash 的粗糙帆形图，只保留主题纯色系统交接层与现有高还原 Activity 品牌页；将 AndroidX Compose Runtime/Foundation/UI 对齐到 1.10.6，修复接口管理快速滚动触发的懒列表复用崩溃；并把浅深两套四组底部花纹从 `1080×320` 以 2× 原生坐标重绘为 `2160×640`。69 项 JVM 单测、Lint、debug/APK 构建与 Android 16 `medium_phone` 的 29 项连接设备测试全部通过；接口管理压力用例覆盖已连接、自定义与十个平台卡片，并完成 50 轮往返快速滑动。真实物理设备、API 26/31 设备矩阵、真实平台凭据数值对账，以及 1.22.0 中已列出的供应商未完成项仍是 **Unverified / incomplete**。`1.20.0` 仍是最近公开发布版本。
 
 GitHub Actions 首轮在 Linux runner 解析 KSP plugin marker 时失败；根因是 Aliyun 镜像排在官方插件仓库之前。修复后 Google、Maven Central 和 Gradle Plugin Portal 优先，Aliyun 仅作回退，Actions 也更新到 Node 24 兼容主版本。提交 `baf4ab6` 的 Linux CI 已在 6 分 10 秒内完成单测、Lint 和 debug 构建并通过。
 
-第一优先级：用真实 DeepSeek/APIKEY.FUN 凭据在真机核对 7/14/30/90 天金额、请求、Token 与平台官网一致，并继续复核 SceneView/Filament 长时间运行、暂停恢复和省电模式。
+第一优先级：在至少一台手势导航真机和一台三键导航真机覆盖安装 `1.22.1`，复核系统 Splash 交接、浅深品牌页、接口管理滚动与 1264/1440px 花纹清晰度；随后用各供应商真实凭据和官方账单做字段级对账，并继续补齐 1.22.0 中尚未完成的云账单能力。
 
 ## 1. 唯一工作目录
 
@@ -25,10 +25,11 @@ GitHub Actions 首轮在 Linux runner 解析 KSP plugin marker 时失败；根�
 ```text
 app/src/                              正式源码与资源
 app/build/outputs/                    Gradle 临时构建输出，不作为版本归档
-artifacts/apk/debug/                  v1.6.0—v1.20.0 全部 debug APK
+artifacts/apk/debug/                  v1.6.0—v1.22.1 全部 debug APK
 artifacts/diagnostics/ui-dumps/       UIAutomator/窗口层级 XML
 artifacts/logs/build|crash/           构建与崩溃日志
 design/icon/                          正式图标母版
+design/source/<version>/              可重建设计资源、批准参考、旧资源基线和生成脚本
 design/concepts/                      历史设计探索与渲染稿
 design/validation/<version>/          按版本整理的验收截图
 docs/                                 交接、架构、实现计划与文件索引
@@ -36,21 +37,130 @@ docs/                                 交接、架构、实现计划与文件索
 
 新增 APK 不再放入 `app/releases` 或 `artifacts` 根目录；验收图不再散放在 `artifacts`。每次发布候选都应建立版本目录或使用统一 APK 归档目录，并同步更新 `docs/FILE_INDEX.md` 与本报告。
 
-2026-08-12 目录整理核验：共 23 个历史/当前 debug APK 已统一归入 `artifacts/apk/debug/`；设计概念稿、版本验收图、UI 层级转储、构建日志和崩溃日志均已按上述类别归档。当前 `Vela-1.20.0-debug.apk` 和 v1.20.0 侧栏验收图均已落入对应分类目录；陶瓷图标母版继续位于 `design/icon/v1.19.0/`。
+2026-08-20 目录整理核验：历史与当前 debug APK 统一位于 `artifacts/apk/debug/`；本轮可重建视觉源、批准参考、标题总览和自动验证脚本位于 `design/source/v1.21.1/`，设备验收截图与 SSIM 报告位于 `design/validation/v1.21.1/`。`v1.21.0` 目录继续作为上一候选归档保留。UI 层级、构建/崩溃日志仍分别位于 `artifacts/diagnostics/` 与 `artifacts/logs/`，禁止回填到源码资源目录。
 
 ## 2. 当前版本与产物
 
 - applicationId：`com.deepseek.widget`
 - 应用显示名称：`Vela`（applicationId 与数据库名不变，覆盖安装保留本地数据）
-- versionName：`1.20.0`
-- versionCode：`25`
+- versionName：`1.22.1`
+- versionCode：`29`
 - minSdk / targetSdk / compileSdk：`26 / 36 / 36`
-- 最终 debug APK：`artifacts/apk/debug/Vela-1.20.0-debug.apk`
-- APK 大小：`76,410,097` bytes
-- APK SHA-256：`E32AA68A8E1F426C11525FDFC1E2FEB80CC08679B6E28AE7E9387DAAD0AC3697`
+- 当前候选 debug APK：`artifacts/apk/debug/Vela-1.22.1-debug.apk`
+- APK 大小：`78,053,223` bytes
+- APK SHA-256：`50537B55476EA8D09C3C673D2D64EEB9F663D023DD5D9A17C8190D3737017ACF`
 - APK 使用 Android debug 证书和 v2 签名，只用于开发验证，不是商店发布包。
 
-## 3. 2026-08-12 1.20.0 E2 边缘入口、C1 导航稳定性与 I1 图标
+## 2.1. 2026-08-21 1.22.1 启动、接口管理稳定性与高清花纹修复
+
+### 已实现
+
+- Android 系统 Splash 的 `vela_splash_vector.xml` 已删除，浅深 `Theme.Vela.Starting` 统一改为完全透明的 `vela_splash_transparent`；系统层只显示 `#F2EBE2` 或 `#121D29`，之后仍由现有 `VelaEntryScreen` 展示浅深正式品牌页、真实初始化进度和 900ms 冷启动节奏。APK 内旧资源条目计数为 0，新透明资源条目为 1。
+- Compose BOM 固定为 `2026.03.01`。`dependencyInsight` 确认 AndroidX Runtime、Foundation、UI 与测试组件均解析为 `1.10.6`，没有跨入 1.11/1.12，也不再被 SceneView 的 `2026.03.00` 约束拉回 1.10.5。
+- 接口管理主列表、已连接项、十个平台、自定义项及凭据字段均增加命名空间稳定键；新增 `provider_center_list` 测试语义。压力测试预置一个 DeepSeek 连接和一个自定义连接，连同十个平台卡片执行 50 轮上/下快速滑动，进程持续存活。
+- 压力测试同时暴露了自定义 API 图标曾回退到不受 Compose `painterResource` 支持的 `<inset>` Launcher 资源；现已改为 Vela 通用数据连接 VectorDrawable，并区分“连接图标”与“官方图标”无障碍说明。
+- 八张底部花纹由现有生成器按 2× 坐标、线宽、弧线与星点尺寸直接重绘为 `2160×640` 无损 WebP；页面显示高度仍为 118dp，页首、分隔、侧栏和加载页未改。旧 `1080×320` 基线保存在 `design/source/v1.22.1/footer-baseline/`，对照图与报告位于 `design/validation/v1.22.1/`。
+
+### 验证证据
+
+- `:app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:assembleDebugAndroidTest`：成功；JVM 69/69，0 失败、0 错误。
+- `:app:connectedDebugAndroidTest`：Android 16/API 36 `medium_phone` 为 29/29，0 失败、0 错误；新增接口管理测试完成 50 轮往返（100 次手势）。清空日志后没有目标 `FATAL EXCEPTION`、ANR、`Cannot disable reuse` 或 `LazyLayoutPrefetch` 异常。
+- 浅色、深色分别强停冷启动 10 次，20/20 启动成功；日志无目标崩溃或 ANR。当前本机仅有 API 36 AVD，API 26/31 与物理设备启动矩阵未虚报为已完成。
+- `footer-validation.json`：八张资源尺寸均为 `2160×640`，显示尺度结构 SSIM 为 `0.996169–0.996991`，全部高于 0.995；人工对照确认山线、轨道、星点、颜色、透明度和位置未改变，只改善细线采样。
+- `aapt dump badging`：`com.deepseek.widget`、`versionName=1.22.1`、`versionCode=29`、`minSdk=26`、`targetSdk=36`；`apksigner verify`：v2 有效、1 个 Android Debug signer，证书 SHA-256 为 `d353323404bacc665b8d128a5a5040c5d4bb4ee9b6ef8e0f7685ba24aea55729`。
+- 旧 `Vela-1.22.0-debug.apk` 未覆盖，SHA-256 仍为 `864DD0634B25CA9ED873162523CB2D055C33581CF5C867C16B14AE19128D8450`。Room 继续为 v6，未新增迁移。
+
+## 3. 2026-08-20 1.22.0 十供应商数据洞察升级
+
+### 已实现
+
+- `UsageProvider` 双值枚举已退出新链路；十个预设与自定义来源统一使用 `ProviderId + ProviderDescriptor + ProviderConnector`，能力结果区分 `Supported / Unsupported / PermissionRequired / PartialFailure`，缺失值不再伪装为 `0`。
+- Room v6 新增统一指标事实表与官方账单导入表，v5→v6 原位迁移既有用量；事实来源明确区分 `EXACT_API / EXACT_IMPORT / LOCAL_CAPTURE / BALANCE_DELTA_ESTIMATE`。导入记录按供应商和 SHA-256 去重，API 精确数据与估算数据在汇总中分开。
+- 官方账单导入支持 CSV、DeepSeek ZIP 与 XLSX 首张工作表，先预览币种、日期、记录和警告再确认入库。导入模型排行按当前 7/14/30/90 天范围即时聚合，不被导入时日期范围锁死。
+- 设置页固定二级标题改为“连接与凭据 / Connections & Credentials”，进入统一管理中心；洞察供应商卡改为进入 `ProviderDetail(providerId)`。详情页展示供应商聚合费用、请求、Token、余额、Top 5＋其他、各连接配置卡，以及本期/上期增长动画柱图。
+- 用量详情的费用模式固定拆为 CNY、USD 两张多供应商折线图，同币种供应商用颜色、点形和线型区分；请求与 Token 为单张全供应商图。范围、指标切换、精确值列表和无障碍描述继续共享同一状态。
+- 十个预设均使用随 APK 打包的供应商官方图形，统一 48dp 容器和 30dp 光学框，保持原比例与品牌色；来源记录在 `design/provider-logos/SOURCES.md`。自定义 API 使用 Vela 通用连接图形，不使用字母缩写兜底。
+- 自定义 API 支持连接、余额、日用量、模型用量和实际费用五类独立端点，包含 GET/POST、请求模板、分页、时区和受限 JSON 路径映射；禁止任意脚本，URL 必须为 HTTPS。
+- 当前自动直连已实现：DeepSeek 余额、APIKEY.FUN 既有实际用量、SiliconFlow 余额、Moonshot/Kimi 余额、OpenAI Admin Usage/Costs、腾讯 TokenHub 模型/日 Token 用量、百度千帆逐日服务调用/Token 与百度云账户余额、阿里云 BSS 账户余额。云账户余额按 Access Key 指纹去重并明确标注，不当作单平台专属余额。智谱及尚无安全自动口径的费用可通过官方账单导入补全；未知字段显示“官方接口未提供”。
+- 腾讯 TokenHub 使用官方 `DescribeUsageRankList`、TC3-HMAC-SHA256、模型维度和 86400 秒粒度，分页保留输入/输出/缓存/总 Token；百度千帆使用 BCE v1 签名，逐日调用 `DescribeServiceMetric`，按服务聚合请求和 Token；阿里百炼使用 BSS RPC HMAC-SHA1 调用 `QueryAccountBalance`。三套签名均有固定向量或独立响应契约测试。
+
+### 明确未完成，禁止误报
+
+- 火山方舟当前完成凭据模型、能力/权限提示、官方图标、账单导入和 UI 路由，但新的 `GetInferenceUsage` 官方响应文档仍只公开 `DataCount`，缺少可安全解析的逐日字段，因此未接入旧的、已于 2026-06-30 下线的 `GetUsage`。
+- 阿里百炼尚未自动计入实际费用：BSS 账单虽然可查，但当前官方资料没有给出可稳定使用的百炼 `ProductCode`，不能把整个阿里云账号消费误算为 AI 消耗。腾讯 TokenHub 的云账单费用/余额、百度千帆的产品级实际费用也仍待真实凭据与产品过滤字段对账。
+- 仓库没有真实供应商密钥，当前不能声称任一线上数值已与官方控制台对账；Mock/空态/连接框架通过不等于真实账单正确。
+- 官方图标已检查尺寸和来源记录，但商用发布仍应由产品方复核各品牌的最新商标使用条款。
+
+### 验证证据
+
+- JDK：`D:\jdk17\jdk-17.0.11+9`。
+- `:app:testDebugUnitTest`：69/69，0 失败、0 错误；覆盖十平台注册、来源口径、账单解析/去重、TC3/BCE/Aliyun RPC 签名、腾讯/百度/阿里响应契约和既有业务回归。
+- `:app:connectedDebugAndroidTest`：Android 16/API 36 `medium_phone` 为 28/28，0 失败；包含 v5→v6 原位迁移、首页/洞察导航、固定视觉资产和 DAO 旅程。
+- `:app:lintDebug :app:assembleDebug :app:assembleDebugAndroidTest`：成功。最终归档 APK 冷启动后 `MainActivity` 为 `topResumedActivity`，logcat 无目标崩溃或 ANR。
+- `design/validation/v1.22.0/` 保存最终 APK 的首页、洞察、设置截图与首页 UI 层级；人工抽查后修正了洞察页残留的双供应商旧文案。
+- 首轮设备执行在运行十小时的 QEMU 上于 0 tests 阶段启动 ANR；日志同时显示 Launcher 崩溃、系统内存压力及 `system_server` 超高负载。完整重启 QEMU、等待 `boot_completed=1` 且 CPU 空闲后，同一构建 28/28 通过，故该轮归类为测试环境故障而非应用断言失败。
+- `aapt dump badging`：`com.deepseek.widget`、`versionName=1.22.0`、`versionCode=28`、`minSdk=26`、`targetSdk=36`；`apksigner verify`：v2 有效、1 个 Android Debug signer，证书 SHA-256 为 `d353323404bacc665b8d128a5a5040c5d4bb4ee9b6ef8e0f7685ba24aea55729`。
+
+## 4. 2026-08-20 1.21.1 启动页、双主题视觉与标题体系返工
+
+### 已实现
+
+- Android 系统 Splash 只保留主题底色与静态 Vela 图标；旧 `vela_splash_animated.xml`、旧 `vela_entry_master.webp` 和重复品牌页资源已删除。Activity 品牌页从用户浅/深 `1080×2400` 母版拆为固定上部、可延展无文字材质带、固定页脚三层，系统 Splash 真正退出后才开始 900ms 计时，避免慢冷启动时品牌页在背后耗尽。
+- `VelaEntryScreen` 接收明确 `EntryThemeVariant`，不再猜系统主题。API 31+ 用 application night mode，同步提前恢复的 bootstrap 主题；验证了“系统浅色 + App 深色”强停冷启动仍显示深色母版。真实初始化进度仅叠加在母版已有 Loading 圆弧，关闭系统动画时直接呈现当前完成值。
+- 手机 18:9、20:9、21:9 均保持品牌主体、标题和页脚比例，只改变中段材质高度；`≥600dp` 改为固定 20:9 手机画板居中，外围使用对应主题底色，不再把暗色反射纹纵向拉满平板。
+- 浅深色花纹改为两套独立无损 WebP：今天、任务、洞察、设置和侧栏均固定映射，普通页面只保留页首右上、栏目右下和页尾三类装饰位置。侧栏浅色为枝叶/日出山水，深色为星野/森林山景；不再运行时反色或绘制大太阳、粗山线与重复星形分隔。
+- 标题锁为不可覆写的 `PAGE` 与 `SECTION` 两种角色：5 个一级标题统一 `1200×240`，10 个二级标题统一 `1200×160`；页面只传枚举，不再允许局部 height、widthFraction 或缩放。标题字形在生成阶段栅格化为贴图，运行时不依赖系统字体，并保留 TalkBack heading/中文描述。
+- 双主题语义色已独立：浅色 `#F2EBE2/#332C25/#9B672D`，深色 `#121D29/#182635/#F2EDE5/#7FB3E5`；古铜只用于深色星线和边框。任务空态也改为对应主题的远山天体插图。
+
+### 本轮验证证据
+
+- JDK：`D:\jdk17\jdk-17.0.11+9`。
+- `:app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:assembleDebugAndroidTest :app:connectedDebugAndroidTest`：全部成功；JVM 59/59、Android 16/API 36 `medium_phone` 27/27，均为 0 失败、0 错误。Lint 有 270 条既有 warning，无 error，未阻断构建。
+- 新增资源契约测试覆盖启动三段尺寸、18/20/21:9 高度计算、标题角色集合、浅深资源画布与重复文件；连接测试覆盖浅深标题资源存在性和固定像素尺寸。
+- `design/validation/v1.21.1/asset-validation.json`：浅/深静态品牌页重组 SSIM 均为 `1.000000`；一级/二级画布与深色蓝色书法强调检查全部通过。
+- 设备截图：`design/validation/v1.21.1/` 覆盖浅/深 20:9 品牌页、18:9、21:9、暗色平板画板、浅/深首页与侧栏、任务空态、洞察、设置。手工设备旅程确认系统 Splash 后只有一个 Activity 品牌页，进程内热返回和窗口重建不会再次消费品牌页。
+- `aapt dump badging`：`com.deepseek.widget`、`versionName=1.21.1`、`versionCode=27`、`minSdk=26`、`targetSdk=36`；`apksigner verify`：v2 有效、1 个 Android Debug signer，证书 SHA-256 为 `d353323404bacc665b8d128a5a5040c5d4bb4ee9b6ef8e0f7685ba24aea55729`。
+
+### 尚待用户/物理设备验收
+
+1. 当前只能标记为“视觉候选”：需用户对截图和 APK 的实际观感确认后，才能把 90% 还原目标标记完成。
+2. 模拟器已覆盖多比例和 Android 16；API 26/30/31、横屏、物理设备状态栏/导航栏过渡、厂商裁切和 1.3/1.5 字体缩放仍需真机矩阵。
+3. 真实数据源凭据、桌面 Launcher 组件与旧版覆盖安装迁移仍按下一阶段验证，不以空数据模拟器结果替代线上对账。
+
+## 5. 2026-08-20 1.21.0 全局视觉、数据源与主页升级
+
+### 已实现
+
+- 系统 Splash 只承担 Android 启动交接；Activity 顶层 `VelaEntryScreen` 使用用户最终批准的浅/深色静态母版，保留帆、轨道、星点、双框、山景和品牌文案。进度条读取真实本地初始化 `StartupState`，最短显示 900ms，超过 3 秒时非关键迁移转入后台；冷启动进程内只消费一次，Activity 重建不重复。
+- `WorkbenchTheme` 改为奶油陶瓷 / 石墨蓝黑釉底色；浅色交互强调黄铜，深色强调蓝色，深色装饰仍用低亮古铜。全局背景加入克制高光、细双框、页面固定花纹与底部山景；右缘入口保持半掩唤醒交互。关闭系统动画时入口和进度直接到最终状态，信息不缺失。
+- 13 组固定大标题（含今天、下一步、任务、洞察、设置、工具、数据源中心、专注、专注历史、每日留言墙、今日复盘、用量详情、密钥管理）改为浅/深色 WebP 贴图并提供独立可访问语义，避免依赖系统字体加载。标题和侧栏纹样可由 `design/source/v1.21.0/generate_editorial_assets.py` 重建；字体只在设计生成阶段使用，不打包字体二进制。
+- 侧栏背景重绘为浅色枝叶/日出山景和深色枝叶/月夜山景，配细双框及固定英文页脚；菜单图标维持 24dp 圆端线稿，数据源入口收敛为单一“数据源中心”。
+- `TaskRepository.observeNextSteps(date)` 合并今日未完成任务与无日期 BACKLOG；今日优先，其后按优先级和更新时间。首页显示前 4 项及总量，展开卡显示完整列表；今日完成率仍只计算当天任务。
+- 首页移除 AI 资源卡，复盘上移。复盘保存拥有 SAVING/SAVED/ERROR 状态，只有数据库成功后关闭窗口；失败保留文字并显示错误。
+- Room 升至 v5，新增 `provider_profiles`、`provider_balance_snapshots` 与 `MIGRATION_4_5`；现有字符串 provider 用量表不变，未加入 destructive migration。
+- 新增 `ProviderId`、能力/凭据模型、`ProviderConnector`、双模式 `CustomConnectorConfig` 与十平台能力注册：DeepSeek、APIKEY.FUN、SiliconFlow、Moonshot/Kimi、智谱、百炼、方舟、混元、千帆、OpenAI。未知能力显式 `Unsupported`，不以空成功或 0 冒充。
+- 侧栏数据源区收敛为“数据源中心”。中心按已连接/可添加/自定义展示，支持启停、删除、连接测试；自定义简易模式支持 HTTPS Base URL + Bearer Key + `/models`，高级模式支持 GET/POST、鉴权头、静态 JSON 请求体和字段映射文本，不执行任意脚本。
+- 新 Profile 凭据使用 Android Keystore AES-256-GCM；旧 DeepSeek、旧单 Key 及 APIKEY.FUN 多 Key 在 Application 后台执行“加密写入并回读成功后删除 DataStore 明文”的幂等迁移。
+- 洞察范围继续共用 7/14/30/90 天；最后刷新、partial/stale、多币种分开聚合、模型 Top 5 + 其他、环形图、折叠精确值和无障碍文本继续保留。DeepSeek 等缺少历史接口时显示“接口未提供”，不再填 0。
+- 桌面组件改为“总消耗 · 当前保存周期 / 总余额”两行汇总；只并列 `$` 与 `¥`，其他币种提示在 App 查看；整卡进入洞察，刷新按钮独立工作。
+
+### 本轮验证证据
+
+- JDK：`C:\Users\ASUS\.cache\codex-runtimes\temurin-17\jdk-17.0.20+8`。
+- `:app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:assembleDebugAndroidTest`：全部成功；JVM 56/56，0 失败、0 错误。
+- `:app:connectedDebugAndroidTest`：Android 16/API 36 `medium_phone` 为 25/25，0 失败、0 错误；覆盖 Room v4→v5 数据保留、下一步/复盘状态和侧栏四个实际目的地。固定标题改用无障碍 content description 后，旅程测试也同步按语义而不是字形查找。
+- 手工设备旅程：浅/深色冷启动、首页、侧栏打开、底部四入口、数据源中心跳转均通过；`MainActivity` 保持 resumed，未复现侧栏跳转闪退。截图归档在 `design/validation/v1.21.0/`。
+- `aapt dump badging`：包名 `com.deepseek.widget`、`versionName=1.21.0`、`versionCode=26`、`minSdk=26`、`targetSdk=36`。
+- `apksigner verify`：v2 签名有效，1 个 Android Debug signer；证书 SHA-256 仍为 `d353323404bacc665b8d128a5a5040c5d4bb4ee9b6ef8e0f7685ba24aea55729`。
+
+### 未验证与接手顺序
+
+1. Android 16 模拟器已通过；仍需物理设备覆盖安装验证旧数据/Keystore 迁移、三键与手势导航、冷启动仅一次、旋转不重复、桌面组件加载和厂商裁切差异。
+2. 数据源注册和连接测试框架已落地；除既有 DeepSeek/APIKEY.FUN 外，平台历史费用/余额同步连接器尚未全部完成字段落库。方舟/千帆签名接口、OpenAI Admin Usage/Costs 分页和自定义响应预览/映射校验是下一实现批次，界面会明确能力限制，不伪造数据。
+3. 固定大标题已经贴图化，不再依赖运行时中文/书法字体；普通正文继续使用系统无衬线。仍需在物理设备验证 1.3/1.5 字体缩放、长屏和 ≥600dp 布局。
+4. 当前截图覆盖浅/深色手机主路径；≥600dp、动画关闭、桌面组件以及具有真实多 Key/多币种数据的图表截图仍待补齐。
+
+## 6. 2026-08-12 1.20.0 E2 边缘入口、C1 导航稳定性与 I1 图标
 
 ### 用户可见结果
 
@@ -74,7 +184,7 @@ docs/                                 交接、架构、实现计划与文件索
 - **Unverified**：目前只在 Android 16 Pixel 模拟器验证；不同厂商对边缘返回手势、触摸热区和显示裁切可能有差异。下一步应在至少一台三键导航真机和一台手势导航真机复测“休眠 -> 触碰 -> 拖动 -> 抽屉 -> 六入口”。
 - 首次冷启动会加载既有 SceneView/Filament 与数据层，模拟器偶尔需要较长时间才呈现首页；本轮没有扩大启动链路。不要在启动页尚未完成时把自动手势注入造成的系统返回或超时误判为侧栏崩溃。
 
-## 4. 2026-08-12 1.19.0 图表稳定性、模型分布与陶瓷品牌更新
+## 7. 2026-08-12 1.19.0 图表稳定性、模型分布与陶瓷品牌更新
 
 ### 用户可见结果
 
@@ -95,7 +205,7 @@ docs/                                 交接、架构、实现计划与文件索
 - 视觉证据位于 `design/validation/v1.19.0/`，覆盖 Launcher、启动页、首页、洞察、用量详情上下区和右侧工具面板；每张截图均已人工检查。
 - 未验证项：模拟器没有真实平台凭据，环形图的空态和组件结构已验收，但真实多 Key 前五名/其他展开、跨币种切换与平台官网逐字段数值仍需用户凭据在真机确认。
 
-## 5. 2026-08-11 1.18.0 Vela、用量中心、留言墙与侧栏
+## 8. 2026-08-11 1.18.0 Vela、用量中心、留言墙与侧栏
 
 ### 用户可见结果
 
@@ -124,7 +234,7 @@ docs/                                 交接、架构、实现计划与文件索
 - 视觉证据统一位于 `design/validation/v1.18.0/`：首页、洞察、用量详情、抽屉和 Launcher。
 - 未验证项：仓库没有可用于自动化验收的真实平台密钥，因此 APIKEY.FUN 多 Key 聚合数值与平台官网的逐字段对账仍待真机凭据验收；不应把模拟器空态当成线上数据验收完成。
 
-## 6. 2026-08-11 1.17.0 专注流程与 SceneView 稳定性
+## 9. 2026-08-11 1.17.0 专注流程与 SceneView 稳定性
 
 ### 当前用户可见行为
 
@@ -156,7 +266,7 @@ docs/                                 交接、架构、实现计划与文件索
 - `FocusSession.actualMinutes()` 从总时长中扣除已累计暂停和当前未结束暂停，工作台与历史页都复用这一口径。
 - 新增测试覆盖运行中短会话、暂停中短会话、负数保护、未恢复暂停和 DAO 删除活动会话。
 
-## 7. 2026-08-10 专注、日程窗口与导航栏验收（历史基线）
+## 10. 2026-08-10 专注、日程窗口与导航栏验收（历史基线）
 
 ### 1.14.0 本轮完成范围
 
@@ -174,7 +284,7 @@ docs/                                 交接、架构、实现计划与文件索
 - **Superseded by 1.17.0**：旧版曾打包 NASA Jupiter、NASA Saturn 和 ESA 67P 模型；当前运行时只加载 LUNA、ARES、EUROPA 三个主题。公开发布前已将三份未引用旧资产移出正式源码，避免继续增加 APK 体积和不必要的再分发边界。
 - 来源与署名记录在 `app/src/main/assets/models/ATTRIBUTION.txt`。
 
-## 8. 2026-08-09 Compose 新壳、真实玻璃材质与小组件验收
+## 11. 2026-08-09 Compose 新壳、真实玻璃材质与小组件验收
 
 ### 1.11.0 真实玻璃、窗口状态与液态底栏
 
@@ -217,7 +327,7 @@ docs/                                 交接、架构、实现计划与文件索
 - 账户行按可用高度均分，在 Launcher 预览和实际桌面均无中部异常空白；浅色与暗色资源会随系统模式切换。
 - 根卡、两个账户区域和刷新按钮均已在 Android 16 模拟器实测；未配置、正常、部分失败和余额警告仍可渲染，不因单一数据源失败造成整张组件加载失败。
 
-## 9. 2026-08-05 审查与修复结果
+## 12. 2026-08-05 审查与修复结果
 
 ### 启动、导航与构建
 
@@ -275,7 +385,7 @@ docs/                                 交接、架构、实现计划与文件索
 - 重复且余额未变化的 DeepSeek 快照不再写入 DataStore，避免长期后台刷新造成存储膨胀。
 - 后续已在 2026-08-07 调整为最小 `180dp x 120dp`、目标 `3 x 2`，支持横向和纵向调整。
 
-## 10. DeepSeek 数据口径
+## 13. DeepSeek 数据口径
 
 2026-08-05 再次核对 DeepSeek 官方资料：公开 API 文档提供 `GET /user/balance`；按 API Key 的详细历史用量仍要求在 Usage 页面按月导出 CSV，未文档化历史用量查询 API。
 
@@ -284,7 +394,7 @@ docs/                                 交接、架构、实现计划与文件索
 
 因此当前应用只把余额快照下降量作为费用估算。它不能恢复请求数、Token 或模型分布，也不能区分充值、赠金调整与两次快照之间的全部计费事件；界面不得把这些未知指标显示为精确官方用量。
 
-## 11. 关键源码
+## 14. 关键源码
 
 ```text
 app/src/main/java/com/deepseek/widget/
@@ -300,7 +410,9 @@ app/src/main/java/com/deepseek/widget/
 ├─ data/
 │  ├─ AppPreferences.kt                    账户缓存与余额快照
 │  ├─ ApiKeyFunProfileStore.kt             多 Key Profile 与主 Key
-│  ├─ local/                               Room v4、Entity、DAO、Migration
+│  ├─ local/                               Room v6、Entity、DAO、Migration
+│  ├─ provider/                            供应商注册、类型化连接器、自定义 API 与账单解析
+│  ├─ security/                            Keystore 凭据存储与迁移
 │  └─ repository/                          任务、专注、复盘、AI 用量 Repository
 ├─ feature/
 │  ├─ home/                                Compose 首页
@@ -315,9 +427,9 @@ app/src/main/java/com/deepseek/widget/
 └─ worker/                                 余额刷新、任务提醒、专注完成、通知
 ```
 
-Room 当前为 v4，包含 `projects`、`tasks`、`focus_sessions`、`daily_reviews`、`ai_usage_daily`、`ai_usage_model_period` 和 `ai_usage_sync_state`。禁止加入 `fallbackToDestructiveMigration()`。
+Room 当前为 v6；除原任务、专注、复盘与用量表外，包含 `provider_profiles`、`provider_balance_snapshots`、`provider_usage_facts` 与 `provider_bill_imports`。禁止加入 `fallbackToDestructiveMigration()`。
 
-## 12. 构建与验证
+## 15. 构建与验证
 
 ```powershell
 Set-Location 'D:\CodexProjects\DeepSeekWidget'
@@ -325,42 +437,41 @@ $env:JAVA_HOME = '<本机 JDK 17 根目录>'
 .\gradlew.bat :app:testDebugUnitTest :app:lintDebug :app:assembleDebug :app:assembleDebugAndroidTest :app:connectedDebugAndroidTest --console=plain
 ```
 
-2026-08-12 `1.20.0` 当前执行/复核结果：
+2026-08-20 `1.22.0` 当前执行/复核结果：
 
-- `testDebugUnitTest`：54/54 通过，0 失败、0 错误。
+- `testDebugUnitTest`：69/69 通过，0 失败、0 错误。
 - `lintDebug`：通过，0 error。
 - `assembleDebug`：通过。
 - `assembleDebugAndroidTest`：通过。
-- `connectedDebugAndroidTest`：Android 16 `medium_phone` 上 23/23 通过。
-- `aapt dump badging`：确认 `versionName=1.20.0`、`versionCode=25`、包名 `com.deepseek.widget`、标签 `Vela`。
-- `aapt2 dump xmltree`：确认 `initialLayout`、`previewLayout`、`targetCellWidth=3`、`targetCellHeight=2`、横竖缩放声明，以及布局仅含 `LinearLayout`、`TextView`、`ImageView`。
+- `connectedDebugAndroidTest`：Android 16 `medium_phone` 上 28/28 通过。
+- `aapt dump badging`：确认 `versionName=1.22.0`、`versionCode=28`、包名 `com.deepseek.widget`、标签 `Vela`。
 - `apksigner verify`：v2 签名有效，1 个 Android Debug signer；证书 SHA-256 为 `d353323404bacc665b8d128a5a5040c5d4bb4ee9b6ef8e0f7685ba24aea55729`。
-- `app/build/outputs/apk/debug/app-debug.apk` 是 GitHub `v1.20.0` Release 附件的来源，SHA-256 为 `E32AA68A8E1F426C11525FDFC1E2FEB80CC08679B6E28AE7E9387DAAD0AC3697`。
-- 视觉验收：`design/validation/v1.20.0/` 覆盖右缘休眠、拖动打开、浅色/深色工具面板和关闭系统动画；`design/validation/v1.19.0/` 保留 Launcher、启动页、洞察、用量详情和模型区证据；历史设备证据在 `design/validation/historical/`。
-- Launcher 验收：Pixel Launcher 可预览、选择、添加、刷新和点击 `3 x 2` 小组件；实际桌面成功加载双账户状态和官方供应商图标，自适应应用图标裁切正常。
+- 最终归档 `artifacts/apk/debug/Vela-1.22.0-debug.apk` 为 `78,091,748` bytes，SHA-256 为 `864DD0634B25CA9ED873162523CB2D055C33581CF5C867C16B14AE19128D8450`。
+- 归档 APK 已重新安装并冷启动；`MainActivity` 为 `topResumedActivity`，目标 logcat 无崩溃或 ANR。
 
 当前验收设备为 Android 16 模拟器，不等同于厂商真机。通知延迟、Doze、厂商后台限制和第二个 Launcher 尚未验证。
 
-## 13. 尚未完成或仍需验证
+## 16. 尚未完成或仍需验证
 
-1. APIKEY.FUN 本轮没有用户真实 Key，无法做在线契约回归；解析器和聚合器使用脱敏 fixture 验证。
-2. 用量当前是进入洞察或手动点击刷新时同步；没有增加独立后台用量 Worker。余额 Worker 仍按既有周期运行。
-3. 报告、信息收件箱和预算提醒仍是后续阶段，`WorkbenchModuleRegistry.enabledModules` 只开放任务与专注，不得提前展示无行为卡片。
-4. API Key 仍保存在普通 Preferences DataStore。公开发布前应迁移到 Android Keystore 支持的加密存储。
-5. WorkManager 提醒不是精确闹钟，Doze 或厂商后台策略可能延迟执行；真机验收应覆盖锁屏和省电模式。
-6. 已完成 Android 16 模拟器截图级验收和 Pixel Launcher 图标/小组件实测；正式发布前仍需补厂商真机、横屏、第二个 Launcher，以及三键/手势导航下的右缘入口回归。
-7. 任务列表、任务编辑、专注、留言墙、洞察和设置的主要界面已迁移到 Compose；账户详情仍保留 Fragment/XML 壳。二级导航仍由 Fragment NavHost 承担。
-8. 新图标母版为 1536px PNG；正式上架前仍应导出并验收 Play Store 512px 商店图、品牌矢量源文件和厂商 Launcher 裁切矩阵。
+1. 十个平台均没有用户真实凭据，无法做在线契约和账单数值对账；解析器、聚合器与 UI 使用脱敏 fixture/空态验证。
+2. 腾讯 TokenHub 的 TC3 历史 Token、百度千帆 BCE 历史用量/余额、阿里云 BSS 余额已经实现，但没有真实用户凭据完成线上字段对账。阿里百炼实扣/监控、火山方舟新用量/费用、腾讯产品账单与百度产品级费用仍未实现，界面继续诚实降级。
+3. 用量当前是进入洞察或手动点击刷新时同步；没有增加独立后台用量 Worker。余额 Worker 仍按既有周期运行。
+4. 报告、信息收件箱和预算提醒仍是后续阶段，`WorkbenchModuleRegistry.enabledModules` 只开放任务与专注，不得提前展示无行为卡片。
+5. 新数据源凭据已使用 Android Keystore AES-GCM；真机验收必须确认旧明文迁移后 DataStore 不再含密钥，并覆盖 Keystore 损坏/清除后的错误状态。
+6. WorkManager 提醒不是精确闹钟，Doze 或厂商后台策略可能延迟执行；真机验收应覆盖锁屏和省电模式。
+7. 已完成 Android 16 模拟器自动化；正式发布前仍需补厂商真机、横屏、第二个 Launcher，以及三键/手势导航回归。
+8. 主要界面已迁移到 Compose；部分账户详情仍保留 Fragment/XML 壳，二级导航仍由 Fragment NavHost 承担。
 
-## 14. 后续接手顺序
+## 17. 后续接手顺序
 
-1. 在手势导航与三键导航真机覆盖安装 `artifacts/apk/debug/Vela-1.20.0-debug.apk`，先验收右缘入口的休眠、触碰、拖动、抽屉关闭与六入口跳转；完成条件是连续 20 轮无误触系统返回、无闪退且所有目的地一致。
-2. 用真实多 Key 逐字段对账 APIKEY.FUN 的每日费用、请求、Token、模型与 Key 归属，并检查前五名/其他展开和币种切换；同时核对 DeepSeek 余额快照差值。
-3. 验证断网、单 Key 401、部分 Key 失败和恢复联网：旧缓存必须保留，last-success 时间不前移，成功后错误状态清除。
-4. 继续复核“LUNA 开始 -> 暂停/完成 -> 返回 -> ARES 预览/开始”，覆盖 Filament 驱动、长时间专注、横竖屏和省电模式。
-5. 在第二个 Launcher 验证自适应图标、侧栏入口、小组件添加/缩放/刷新和点击入口。
-6. 公开发布前把 API Key 迁移到 Keystore 支持的加密存储，生成 release 签名包、512px 商店图和品牌矢量源文件；debug APK 不可用于发布。
+1. 先用真实凭据验证现有腾讯 TC3、百度 BCE、阿里 BSS 三条线上契约；未对账前只可称为“已实现并通过固定响应测试”，不能称为生产已验证。
+2. 再补齐阿里百炼可安全过滤的实扣/监控、火山方舟新 `GetInferenceUsage` 与费用中心、腾讯产品账单、百度产品级费用；任何云账单必须验证产品归属后才能进入 AI 总额。
+3. 用真实凭据逐个平台对账余额、每日用量、费用、模型与账号/Key 归属；验证退款、赠金、资源包抵扣、多币种和云账户余额去重。
+4. 在手势导航与三键导航真机从 `Vela-1.21.1-debug.apk` 覆盖安装 `Vela-1.22.0-debug.apk`，验证 v5→v6 与 Keystore 数据保留。
+5. 验证断网、401/403/429、单连接失败和恢复联网：旧缓存必须保留，last-success 不前移，成功后错误状态清除。
+6. 用有真实多供应商数据的浅/深截图验收 CNY/USD 双折线、供应商详情、本期/上期柱图、Top 5＋其他和精确值折叠。
+7. 公开发布前生成 release 签名包并复核十个官方图标的最新商标授权；debug APK 不可用于发布。
 
-## 15. 文档规范状态
+## 18. 文档规范状态
 
 工作区要求先读取 `docs/DOCUMENT_STYLE.md`，但正式项目和上级工作区均不存在该文件。本报告沿用仓库现有 Markdown 风格，并已检查标题层级、代码块、路径、版本号、命令、测试结果和已知限制；无法执行缺失规范中未提供的“最终强制检查”条目。

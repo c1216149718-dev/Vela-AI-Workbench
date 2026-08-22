@@ -25,6 +25,11 @@
         android:label="@string/apikey_keys_title" />
 
     <fragment
+        android:id="@+id/dataSourceCenterFragment"
+        android:name="com.deepseek.widget.feature.providers.DataSourceCenterFragment"
+        android:label="数据源中心" />
+
+    <fragment
         android:id="@+id/insightsFragment"
         android:name="com.deepseek.widget.feature.insights.InsightsFragment"
         android:label="@string/tab_insights" />
@@ -33,6 +38,16 @@
         android:id="@+id/usageDetailFragment"
         android:name="com.deepseek.widget.feature.insights.UsageDetailFragment"
         android:label="用量详情" />
+
+    <fragment
+        android:id="@+id/providerDetailFragment"
+        android:name="com.deepseek.widget.feature.providers.ProviderDetailFragment"
+        android:label="供应商详情">
+        <argument
+            android:name="providerId"
+            android:defaultValue="deepseek"
+            app:argType="string" />
+    </fragment>
 
     <fragment
         android:id="@+id/settingsFragment"

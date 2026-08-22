@@ -3,6 +3,8 @@ package com.deepseek.widget
 import android.animation.ObjectAnimator
 import android.animation.PropertyValuesHolder
 import android.content.Intent
+import android.app.UiModeManager
+import android.content.res.Configuration
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Rect
@@ -13,6 +15,8 @@ import android.provider.Settings
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
+import android.view.WindowManager
+import android.view.WindowInsets
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -25,6 +29,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import androidx.core.view.isVisible
+import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -36,7 +43,11 @@ import com.deepseek.widget.data.AppPreferences
 import com.deepseek.widget.data.ThemeMode
 import com.deepseek.widget.databinding.ActivityMainBinding
 import com.deepseek.widget.worker.WidgetUpdateWorker
+import com.deepseek.widget.feature.entry.VelaEntryScreen
+import com.deepseek.widget.feature.entry.EntryThemeVariant
+import com.deepseek.widget.ui.theme.WorkbenchTheme
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -46,15 +57,33 @@ class MainActivity : AppCompatActivity() {
     private var currentRootIndex = 0
     private var indicatorAnimator: ObjectAnimator? = null
     private var sideHandleSleepRunnable: Runnable? = null
+    private var entryActive = false
+    private val systemSplashExited = MutableStateFlow(false)
     private val useNavigationRail by lazy { resources.configuration.smallestScreenWidthDp >= 600 }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        applyThemeMode(AppPreferences.readBootstrapTheme(this), updatePlatform = true)
+        val systemSplash = installSplashScreen()
+        systemSplash.setOnExitAnimationListener { provider ->
+            provider.remove()
+            systemSplashExited.value = true
+            if (entryActive) {
+                binding.launchEntryOverlay.post {
+                    hideEntrySystemBarsFrom(binding.launchEntryOverlay)
+                }
+                binding.launchEntryOverlay.postDelayed({
+                    if (entryActive) hideEntrySystemBarsFrom(binding.launchEntryOverlay)
+                }, 80L)
+                binding.launchEntryOverlay.postDelayed({
+                    if (entryActive) hideEntrySystemBarsFrom(binding.launchEntryOverlay)
+                }, 240L)
+            }
+        }
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         setupThemeMode()
+        setupColdEntry(savedInstanceState)
         setupBottomNavigationBlur()
 
         val navHost = supportFragmentManager.findFragmentById(R.id.nav_host_container)
@@ -65,6 +94,105 @@ class MainActivity : AppCompatActivity() {
         setupDrawerBackHandling()
 
         WidgetUpdateWorker.schedulePeriodic(this)
+    }
+
+    private fun setupColdEntry(savedInstanceState: Bundle?) {
+        val shouldShow = savedInstanceState == null &&
+            (application as DeepSeekWidgetApp).consumeColdEntry()
+        if (!shouldShow) return
+        entryActive = true
+        setEntrySystemBars(hidden = true)
+        binding.launchEntryOverlay.apply {
+            isVisible = true
+            post { hideEntrySystemBarsFrom(this) }
+            postDelayed({ if (entryActive) hideEntrySystemBarsFrom(this) }, 120L)
+            postDelayed({ if (entryActive) hideEntrySystemBarsFrom(this) }, 360L)
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
+            setContent {
+                WorkbenchTheme {
+                    val startup by (application as DeepSeekWidgetApp).startupState.collectAsState()
+                    val artworkVisible by systemSplashExited.collectAsState()
+                    VelaEntryScreen(
+                        themeVariant = currentEntryThemeVariant(),
+                        progress = startup.progress,
+                        stage = startup.stage,
+                        ready = startup.ready,
+                        artworkVisible = artworkVisible,
+                        minimumDisplayMillis = 900L,
+                        onFinished = {
+                            entryActive = false
+                            isVisible = false
+                            disposeComposition()
+                            setEntrySystemBars(hidden = false)
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    private fun hideEntrySystemBarsFrom(view: View) {
+        @Suppress("DEPRECATION")
+        run {
+            view.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                    View.SYSTEM_UI_FLAG_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                )
+        }
+        ViewCompat.getWindowInsetsController(view)?.apply {
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            hide(WindowInsetsCompat.Type.systemBars())
+        }
+        setEntrySystemBars(hidden = true)
+    }
+
+    private fun setEntrySystemBars(hidden: Boolean) {
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+        if (hidden) {
+            WindowCompat.setDecorFitsSystemWindows(window, false)
+            window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            @Suppress("DEPRECATION")
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                    View.SYSTEM_UI_FLAG_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                )
+            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                window.insetsController?.hide(WindowInsets.Type.systemBars())
+            }
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            @Suppress("DEPRECATION")
+            run { window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE }
+            controller.show(WindowInsetsCompat.Type.systemBars())
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                window.insetsController?.show(WindowInsets.Type.systemBars())
+            }
+            WindowCompat.setDecorFitsSystemWindows(window, true)
+        }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus && entryActive) hideEntrySystemBarsFrom(binding.launchEntryOverlay)
+    }
+
+    private fun currentEntryThemeVariant(): EntryThemeVariant {
+        val night = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+        return if (night == Configuration.UI_MODE_NIGHT_YES) {
+            EntryThemeVariant.DARK
+        } else {
+            EntryThemeVariant.LIGHT
+        }
     }
 
     private fun setupNavigation() {
@@ -265,19 +393,32 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 AppPreferences(applicationContext).themeMode.distinctUntilChanged().collect { mode ->
-                    val target = when (mode) {
-                        ThemeMode.SYSTEM -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                        ThemeMode.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
-                        ThemeMode.DARK -> AppCompatDelegate.MODE_NIGHT_YES
-                    }
-                    val current = AppCompatDelegate.getDefaultNightMode()
-                    val alreadyFollowingSystem = mode == ThemeMode.SYSTEM &&
-                        current == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED
-                    if (!alreadyFollowingSystem && current != target) {
-                        AppCompatDelegate.setDefaultNightMode(target)
-                    }
+                    AppPreferences.writeBootstrapTheme(applicationContext, mode)
+                    applyThemeMode(mode, updatePlatform = true)
                 }
             }
+        }
+    }
+
+    private fun applyThemeMode(mode: ThemeMode, updatePlatform: Boolean) {
+        val target = when (mode) {
+            ThemeMode.SYSTEM -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+            ThemeMode.LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
+            ThemeMode.DARK -> AppCompatDelegate.MODE_NIGHT_YES
+        }
+        val current = AppCompatDelegate.getDefaultNightMode()
+        val alreadyFollowingSystem = mode == ThemeMode.SYSTEM &&
+            current == AppCompatDelegate.MODE_NIGHT_UNSPECIFIED
+        if (!alreadyFollowingSystem && current != target) {
+            AppCompatDelegate.setDefaultNightMode(target)
+        }
+        if (updatePlatform && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val platformMode = when (mode) {
+                ThemeMode.SYSTEM -> UiModeManager.MODE_NIGHT_AUTO
+                ThemeMode.LIGHT -> UiModeManager.MODE_NIGHT_NO
+                ThemeMode.DARK -> UiModeManager.MODE_NIGHT_YES
+            }
+            getSystemService(UiModeManager::class.java).setApplicationNightMode(platformMode)
         }
     }
 

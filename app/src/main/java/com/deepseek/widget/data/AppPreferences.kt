@@ -7,7 +7,9 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.deepseek.widget.data.DeepSeekUsageLedger
+import com.deepseek.widget.data.security.SecureCredentialStore
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 data class AccountCache(
@@ -22,7 +24,11 @@ data class AccountCache(
 
 class AppPreferences(private val context: Context) {
 
+    private val secureCredentials by lazy { SecureCredentialStore(context) }
+
     companion object {
+        private const val THEME_BOOTSTRAP_STORE = "vela_theme_bootstrap"
+        private const val THEME_BOOTSTRAP_KEY = "theme_mode"
         private val KEY_DEEPSEEK_API_KEY = stringPreferencesKey("deepseek_api_key")
         private val KEY_APIKEY_FUN_API_KEY = stringPreferencesKey("apikey_fun_api_key")
         private val KEY_REFRESH_INTERVAL_MINUTES = intPreferencesKey("refresh_interval_minutes")
@@ -33,14 +39,33 @@ class AppPreferences(private val context: Context) {
         private val KEY_DEEPSEEK_BALANCE_SNAPSHOTS = stringPreferencesKey("deepseek_balance_snapshots")
         private const val DEFAULT_REFRESH_INTERVAL = 30
         private const val DEFAULT_USAGE_RANGE_DAYS = 7
+        private const val DEEPSEEK_SECURE_REF = "legacy:deepseek:api_key"
+        private const val APIKEY_FUN_SECURE_REF = "legacy:apikey_fun:api_key"
 
         private fun key(prefix: String, name: String) = stringPreferencesKey("${prefix}_$name")
         private fun boolKey(prefix: String, name: String) = booleanPreferencesKey("${prefix}_$name")
         private fun longKey(prefix: String, name: String) = longPreferencesKey("${prefix}_$name")
+
+        fun readBootstrapTheme(context: Context): ThemeMode {
+            val stored = context.getSharedPreferences(THEME_BOOTSTRAP_STORE, Context.MODE_PRIVATE)
+                .getString(THEME_BOOTSTRAP_KEY, null)
+            return ThemeMode.entries.firstOrNull { it.storageValue == stored } ?: ThemeMode.SYSTEM
+        }
+
+        fun writeBootstrapTheme(context: Context, mode: ThemeMode) {
+            context.getSharedPreferences(THEME_BOOTSTRAP_STORE, Context.MODE_PRIVATE)
+                .edit()
+                .putString(THEME_BOOTSTRAP_KEY, mode.storageValue)
+                .apply()
+        }
     }
 
-    val deepSeekApiKey: Flow<String> = context.dataStore.data.map { it[KEY_DEEPSEEK_API_KEY].orEmpty() }
-    val apiKeyFunApiKey: Flow<String> = context.dataStore.data.map { it[KEY_APIKEY_FUN_API_KEY].orEmpty() }
+    val deepSeekApiKey: Flow<String> = context.dataStore.data.map {
+        secureCredentials.get(DEEPSEEK_SECURE_REF).orEmpty().ifBlank { it[KEY_DEEPSEEK_API_KEY].orEmpty() }
+    }
+    val apiKeyFunApiKey: Flow<String> = context.dataStore.data.map {
+        secureCredentials.get(APIKEY_FUN_SECURE_REF).orEmpty().ifBlank { it[KEY_APIKEY_FUN_API_KEY].orEmpty() }
+    }
     val refreshIntervalMinutes: Flow<Int> = context.dataStore.data.map {
         it[KEY_REFRESH_INTERVAL_MINUTES] ?: DEFAULT_REFRESH_INTERVAL
     }
@@ -79,12 +104,34 @@ class AppPreferences(private val context: Context) {
         )
     }
 
-    suspend fun setDeepSeekApiKey(apiKey: String) = context.dataStore.edit {
-        it[KEY_DEEPSEEK_API_KEY] = apiKey
+    suspend fun setDeepSeekApiKey(apiKey: String) {
+        secureCredentials.put(DEEPSEEK_SECURE_REF, apiKey.trim())
+        context.dataStore.edit { it.remove(KEY_DEEPSEEK_API_KEY) }
     }
 
-    suspend fun setApiKeyFunApiKey(apiKey: String) = context.dataStore.edit {
-        it[KEY_APIKEY_FUN_API_KEY] = apiKey
+    suspend fun setApiKeyFunApiKey(apiKey: String) {
+        secureCredentials.put(APIKEY_FUN_SECURE_REF, apiKey.trim())
+        context.dataStore.edit { it.remove(KEY_APIKEY_FUN_API_KEY) }
+    }
+
+    suspend fun migrateLegacyCredentials(): Boolean {
+        val prefs = context.dataStore.data.first()
+        var migrated = false
+        prefs[KEY_DEEPSEEK_API_KEY]?.takeIf { it.isNotBlank() }?.let { legacy ->
+            secureCredentials.put(DEEPSEEK_SECURE_REF, legacy)
+            if (secureCredentials.get(DEEPSEEK_SECURE_REF) == legacy) {
+                context.dataStore.edit { it.remove(KEY_DEEPSEEK_API_KEY) }
+                migrated = true
+            }
+        }
+        prefs[KEY_APIKEY_FUN_API_KEY]?.takeIf { it.isNotBlank() }?.let { legacy ->
+            secureCredentials.put(APIKEY_FUN_SECURE_REF, legacy)
+            if (secureCredentials.get(APIKEY_FUN_SECURE_REF) == legacy) {
+                context.dataStore.edit { it.remove(KEY_APIKEY_FUN_API_KEY) }
+                migrated = true
+            }
+        }
+        return migrated
     }
 
     suspend fun setRefreshIntervalMinutes(minutes: Int) = context.dataStore.edit {
@@ -95,8 +142,11 @@ class AppPreferences(private val context: Context) {
         it[KEY_USAGE_RANGE_DAYS] = days
     }
 
-    suspend fun setThemeMode(mode: ThemeMode) = context.dataStore.edit {
-        it[KEY_THEME_MODE] = mode.storageValue
+    suspend fun setThemeMode(mode: ThemeMode) {
+        writeBootstrapTheme(context, mode)
+        context.dataStore.edit {
+            it[KEY_THEME_MODE] = mode.storageValue
+        }
     }
 
     suspend fun setFocusTimerStyle(style: FocusTimerStyle) = context.dataStore.edit {

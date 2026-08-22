@@ -152,4 +152,65 @@ class WorkbenchMigrationTest {
         created.close()
         db.close()
     }
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate4To5KeepsUsageAndCreatesProviderTables() {
+        helper.createDatabase(TEST_DB, 4).apply {
+            execSQL(
+                "INSERT INTO ai_usage_daily (provider, credentialId, date, model, currency, " +
+                    "cost, requests, inputTokens, outputTokens, totalTokens, isEstimated, updatedAt) VALUES " +
+                    "('DEEPSEEK', 'local', '2026-08-18', '__all__', 'CNY', '3.20', 1, 2, 3, 5, 1, 1000)"
+            )
+            close()
+        }
+        val db = helper.runMigrationsAndValidate(TEST_DB, 5, true, WorkbenchDatabase.MIGRATION_4_5)
+        val usage = db.query("SELECT cost FROM ai_usage_daily WHERE credentialId='local'")
+        assertTrue(usage.moveToFirst())
+        assertEquals("3.20", usage.getString(0))
+        usage.close()
+        db.execSQL(
+            "INSERT INTO provider_profiles (id, providerId, alias, credentialRef, capabilities, configJson, " +
+                "enabled, backgroundSync, createdAt, updatedAt, lastTestedAt, lastError) VALUES " +
+                "('p1', 'openai', 'OpenAI', 'provider:p1', 'CONNECTION', '', 1, 1, 1, 1, NULL, '')"
+        )
+        db.execSQL(
+            "INSERT INTO provider_balance_snapshots (providerId, credentialId, capturedAt, currency, amount, isEstimated) " +
+                "VALUES ('openai', 'p1', 1, 'USD', '9.50', 0)"
+        )
+        val count = db.query("SELECT COUNT(*) FROM provider_profiles")
+        assertTrue(count.moveToFirst())
+        assertEquals(1, count.getInt(0))
+        count.close()
+        db.close()
+    }
+
+    @Test
+    @Throws(IOException::class)
+    fun migrate5To6CopiesLegacyUsageIntoProviderFacts() {
+        helper.createDatabase(TEST_DB, 5).apply {
+            execSQL(
+                "INSERT INTO ai_usage_daily (provider, credentialId, date, model, currency, cost, requests, inputTokens, outputTokens, totalTokens, isEstimated, updatedAt) VALUES " +
+                    "('APIKEY_FUN', 'key-1', '2026-08-19', '__all__', 'USD', '4.50', 2, 10, 20, 30, 0, 1000)"
+            )
+            execSQL(
+                "INSERT INTO ai_usage_sync_state (provider, credentialId, credentialLabel, periodStart, periodEnd, lastSuccessAt, lastAttemptAt, errorMessage) VALUES " +
+                    "('APIKEY_FUN', 'key-1', 'Key 1', '2026-08-19', '2026-08-19', 1000, 1000, '')"
+            )
+            close()
+        }
+        val db = helper.runMigrationsAndValidate(TEST_DB, 6, true, WorkbenchDatabase.MIGRATION_5_6)
+        val facts = db.query("SELECT providerId, cost, provenance FROM provider_usage_facts WHERE credentialId='key-1'")
+        assertTrue(facts.moveToFirst())
+        assertEquals("apikey_fun", facts.getString(0))
+        assertEquals("4.50", facts.getString(1))
+        assertEquals("EXACT_API", facts.getString(2))
+        facts.close()
+        val state = db.query("SELECT status, lastCompletedAt FROM ai_usage_sync_state WHERE credentialId='key-1'")
+        assertTrue(state.moveToFirst())
+        assertEquals("SUCCESS", state.getString(0))
+        assertEquals(1000L, state.getLong(1))
+        state.close()
+        db.close()
+    }
 }

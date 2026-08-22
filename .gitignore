@@ -46,3 +46,7 @@ design/validation/historical/
 design/validation/*
 !design/validation/v1.20.0/
 !design/validation/v1.20.0/**
+
+# Python bytecode caches
+design/source/**/__pycache__/
+*.pyc

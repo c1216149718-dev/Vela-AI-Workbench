@@ -1,0 +1,130 @@
+{
+  "today": {
+    "role": "PAGE",
+    "canvas": [
+      1200,
+      240
+    ],
+    "spokenLabel": "今天"
+  },
+  "tasks": {
+    "role": "PAGE",
+    "canvas": [
+      1200,
+      240
+    ],
+    "spokenLabel": "任务"
+  },
+  "insights": {
+    "role": "PAGE",
+    "canvas": [
+      1200,
+      240
+    ],
+    "spokenLabel": "洞察"
+  },
+  "settings": {
+    "role": "PAGE",
+    "canvas": [
+      1200,
+      240
+    ],
+    "spokenLabel": "设置"
+  },
+  "tools": {
+    "role": "PAGE",
+    "canvas": [
+      1200,
+      240
+    ],
+    "spokenLabel": "工具"
+  },
+  "next": {
+    "role": "SECTION",
+    "canvas": [
+      1200,
+      160
+    ],
+    "spokenLabel": "下一步"
+  },
+  "daily_reflection": {
+    "role": "SECTION",
+    "canvas": [
+      1200,
+      160
+    ],
+    "spokenLabel": "今日复盘"
+  },
+  "data_sources": {
+    "role": "SECTION",
+    "canvas": [
+      1200,
+      160
+    ],
+    "spokenLabel": "数据源"
+  },
+  "widget": {
+    "role": "SECTION",
+    "canvas": [
+      1200,
+      160
+    ],
+    "spokenLabel": "小组件"
+  },
+  "source_center": {
+    "role": "SECTION",
+    "canvas": [
+      1200,
+      160
+    ],
+    "spokenLabel": "数据源中心"
+  },
+  "connections_credentials": {
+    "role": "SECTION",
+    "canvas": [
+      1200,
+      160
+    ],
+    "spokenLabel": "连接与凭据"
+  },
+  "focus": {
+    "role": "SECTION",
+    "canvas": [
+      1200,
+      160
+    ],
+    "spokenLabel": "专注"
+  },
+  "focus_history": {
+    "role": "SECTION",
+    "canvas": [
+      1200,
+      160
+    ],
+    "spokenLabel": "专注历史"
+  },
+  "daily_wall": {
+    "role": "SECTION",
+    "canvas": [
+      1200,
+      160
+    ],
+    "spokenLabel": "每日留言墙"
+  },
+  "usage_detail": {
+    "role": "SECTION",
+    "canvas": [
+      1200,
+      160
+    ],
+    "spokenLabel": "用量详情"
+  },
+  "key_management": {
+    "role": "SECTION",
+    "canvas": [
+      1200,
+      160
+    ],
+    "spokenLabel": "密钥管理"
+  }
+}

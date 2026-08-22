@@ -2,6 +2,7 @@ package com.deepseek.widget.feature.tasks
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,16 +38,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.deepseek.widget.data.repository.TaskFilter
+import com.deepseek.widget.R
 import com.deepseek.widget.domain.model.Task
 import com.deepseek.widget.domain.model.TaskPriority
 import com.deepseek.widget.domain.model.TaskStatus
 import com.deepseek.widget.ui.components.GlassScreen
 import com.deepseek.widget.ui.components.GlassSurface
+import com.deepseek.widget.ui.components.VelaEditorialHeader
+import com.deepseek.widget.ui.components.VelaMotif
+import com.deepseek.widget.ui.components.VelaSectionOrnament
+import com.deepseek.widget.ui.components.VelaTitle
 import com.deepseek.widget.ui.theme.LocalWorkbenchColors
 
 @Composable
@@ -59,22 +67,14 @@ fun TaskListScreen(
     onAddTask: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    GlassScreen(modifier = modifier.testTag("tasks_screen")) {
+    GlassScreen(modifier = modifier.testTag("tasks_screen"), motif = VelaMotif.TASKS) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 20.dp, top = 24.dp, end = 20.dp, bottom = 148.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             item {
-                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text(
-                        text = "TASKS",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(text = "任务", style = MaterialTheme.typography.headlineLarge)
-                }
+                VelaEditorialHeader(VelaTitle.TASKS)
             }
             item { TaskSearch(query = state.query, onQueryChange = onQueryChange) }
             item { TaskFilterControl(selected = state.filter, onSelected = onFilterChange) }
@@ -91,6 +91,7 @@ fun TaskListScreen(
                     else -> TaskGroup(state.tasks, onTaskToggle, onTaskClick)
                 }
             }
+            item { VelaSectionOrnament(VelaMotif.TASKS) }
         }
 
         FloatingActionButton(
@@ -165,8 +166,14 @@ private fun EmptyTaskState(filter: TaskFilter) {
         TaskFilter.COMPLETED -> "还没有完成的任务"
         else -> "这里暂时没有任务"
     }
-    Box(modifier = Modifier.fillMaxWidth().height(240.dp), contentAlignment = Alignment.Center) {
+    Box(modifier = Modifier.fillMaxWidth().height(310.dp), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Image(
+                painter = painterResource(R.drawable.vela_empty_tasks),
+                contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.width(190.dp).height(128.dp)
+            )
             Text("Clear space.", style = MaterialTheme.typography.headlineSmall)
             Text(message, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }

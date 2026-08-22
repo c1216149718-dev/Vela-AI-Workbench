@@ -73,6 +73,17 @@ class WorkbenchDaoTest {
     }
 
     @Test
+    fun nextStepsMergeTodayAndUnscheduledWithoutIncludingCompletedOrFuture() = runTest {
+        database.taskDao().insert(TaskEntity(title = "今日", status = "PLANNED", plannedDate = "2026-08-19", priority = 1, createdAt = now, updatedAt = now))
+        database.taskDao().insert(TaskEntity(title = "无时间高优", status = "BACKLOG", plannedDate = null, priority = 3, createdAt = now, updatedAt = now + 2))
+        database.taskDao().insert(TaskEntity(title = "未来", status = "PLANNED", plannedDate = "2026-08-20", priority = 3, createdAt = now, updatedAt = now))
+        database.taskDao().insert(TaskEntity(title = "已完成", status = "DONE", plannedDate = "2026-08-19", priority = 3, createdAt = now, updatedAt = now))
+
+        val next = database.taskDao().observeNextSteps("2026-08-19").first()
+        assertEquals(listOf("今日", "无时间高优"), next.map { it.title })
+    }
+
+    @Test
     fun taskCompleteSetsCompletedAt() = runTest {
         val taskId = database.taskDao().insert(
             TaskEntity(

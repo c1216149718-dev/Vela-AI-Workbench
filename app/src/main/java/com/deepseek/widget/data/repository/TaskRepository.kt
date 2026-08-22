@@ -20,6 +20,7 @@ interface TaskRepository {
     fun observeTasks(filter: TaskFilter, today: String): Flow<List<Task>>
     fun observeToday(today: String): Flow<List<Task>>
     fun observeTodayOverview(today: String): Flow<List<Task>>
+    fun observeNextSteps(today: String): Flow<List<Task>>
     fun observeTask(id: Long): Flow<Task?>
     suspend fun getTask(id: Long): Task?
     suspend fun create(
@@ -62,6 +63,9 @@ class TaskRepositoryImpl(
 
     override fun observeTodayOverview(today: String): Flow<List<Task>> =
         dao.observeTodayOverview(today).map { list -> list.map { it.toDomain() } }
+
+    override fun observeNextSteps(today: String): Flow<List<Task>> =
+        dao.observeNextSteps(today).map { list -> list.map { it.toDomain() } }
 
     override fun observeTask(id: Long): Flow<Task?> =
         dao.observeTask(id).map { entity -> entity?.toDomain() }

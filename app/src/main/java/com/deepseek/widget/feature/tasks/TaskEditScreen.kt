@@ -49,6 +49,7 @@ import com.deepseek.widget.domain.model.TaskPriority
 import com.deepseek.widget.domain.model.TaskScheduleRules
 import com.deepseek.widget.ui.components.GlassScreen
 import com.deepseek.widget.ui.components.GlassSurface
+import com.deepseek.widget.ui.components.VelaMotif
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -76,7 +77,7 @@ fun TaskEditScreen(
         if (state.isSaved || state.isDeleted) onFinished()
     }
 
-    GlassScreen(modifier = Modifier.testTag("task_editor")) {
+    GlassScreen(modifier = Modifier.testTag("task_editor"), motif = VelaMotif.TASKS) {
         if (!state.isLoaded) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(modifier = Modifier.size(26.dp), strokeWidth = 2.dp)

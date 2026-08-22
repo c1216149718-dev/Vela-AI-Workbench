@@ -1,213 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/widget_root"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@drawable/widget_background"
-    android:orientation="vertical"
-    android:padding="8dp">
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="20dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:fontFamily="sans-serif-medium"
-            android:text="@string/widget_title"
-            android:textColor="@color/claude_widget_primary"
-            android:textSize="13sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/last_updated"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="5dp"
-            android:singleLine="true"
-            android:textColor="@color/claude_widget_secondary"
-            android:textSize="9sp" />
-
-        <ImageView
-            android:id="@+id/btn_refresh"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:background="@drawable/widget_refresh_button"
-            android:contentDescription="@string/refresh"
-            android:padding="5dp"
-            android:src="@drawable/ic_refresh" />
+    android:id="@+id/widget_root" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/widget_background" android:orientation="vertical" android:padding="12dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="24dp" android:gravity="center_vertical" android:orientation="horizontal">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:fontFamily="serif" android:text="VELA · INSIGHTS" android:textColor="@color/claude_widget_primary" android:textSize="13sp" android:textStyle="bold" />
+        <TextView android:id="@+id/last_updated" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp" android:singleLine="true" android:textColor="@color/claude_widget_secondary" android:textSize="9sp" />
+        <ImageView android:id="@+id/btn_refresh" android:layout_width="24dp" android:layout_height="24dp"
+            android:background="@drawable/widget_refresh_button" android:contentDescription="@string/refresh" android:padding="6dp" android:src="@drawable/ic_refresh" />
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/widget_deepseek_account"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="2dp"
-        android:layout_weight="1"
-        android:background="?android:attr/selectableItemBackground"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:background="@drawable/widget_provider_icon_background"
-            android:contentDescription="@string/deepseek_account"
-            android:padding="4dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/provider_deepseek" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:text="@string/deepseek_account"
-                android:textColor="@color/claude_widget_primary"
-                android:textSize="10sp" />
-
-            <TextView
-                android:id="@+id/deepseek_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:text="@string/not_configured"
-                android:textColor="@color/claude_widget_secondary"
-                android:textSize="8sp" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/deepseek_currency_symbol"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="monospace"
-            android:text="@string/currency_cny_symbol"
-            android:textColor="@color/claude_widget_secondary"
-            android:textSize="10sp" />
-
-        <TextView
-            android:id="@+id/deepseek_total_balance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="1dp"
-            android:ellipsize="end"
-            android:fontFamily="monospace"
-            android:maxWidth="86dp"
-            android:singleLine="true"
-            android:text="@string/placeholder_value"
-            android:textColor="@color/claude_widget_primary"
-            android:textSize="17sp"
-            android:textStyle="bold" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:gravity="center_vertical" android:orientation="vertical">
+        <TextView android:id="@+id/widget_spend_label" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:text="总消耗 · 7 天" android:textColor="@color/claude_widget_secondary" android:textSize="10sp" />
+        <TextView android:id="@+id/widget_spend_value" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:fontFamily="monospace" android:maxLines="1" android:ellipsize="end" android:text="¥-- · $--"
+            android:textColor="@color/claude_widget_primary" android:textSize="22sp" android:textStyle="bold" />
     </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginStart="32dp"
-        android:background="@color/claude_widget_divider"
-        android:text="@string/empty_text" />
-
-    <LinearLayout
-        android:id="@+id/widget_apikey_fun_account"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="?android:attr/selectableItemBackground"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
-
-        <ImageView
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:background="@drawable/widget_provider_icon_background"
-            android:contentDescription="@string/apikey_fun_account"
-            android:padding="4dp"
-            android:scaleType="fitCenter"
-            android:src="@drawable/provider_apikey_fun" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="sans-serif-medium"
-                android:text="@string/apikey_fun_account"
-                android:textColor="@color/claude_widget_primary"
-                android:textSize="10sp" />
-
-            <TextView
-                android:id="@+id/apikey_fun_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:text="@string/not_configured"
-                android:textColor="@color/claude_widget_secondary"
-                android:textSize="8sp" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/apikey_fun_currency_symbol"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="monospace"
-            android:text="@string/currency_usd_symbol"
-            android:textColor="@color/claude_widget_secondary"
-            android:textSize="10sp" />
-
-        <TextView
-            android:id="@+id/apikey_fun_total_balance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="1dp"
-            android:ellipsize="end"
-            android:fontFamily="monospace"
-            android:maxWidth="86dp"
-            android:singleLine="true"
-            android:text="@string/placeholder_value"
-            android:textColor="@color/claude_widget_primary"
-            android:textSize="17sp"
-            android:textStyle="bold" />
+    <TextView android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/claude_widget_divider" android:text="" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:gravity="center_vertical" android:orientation="vertical">
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="总余额"
+            android:textColor="@color/claude_widget_secondary" android:textSize="10sp" />
+        <TextView android:id="@+id/widget_balance_value" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:fontFamily="monospace" android:maxLines="1" android:ellipsize="end" android:text="¥-- · $--"
+            android:textColor="@color/claude_widget_primary" android:textSize="20sp" android:textStyle="bold" />
     </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="16dp"
-        android:gravity="bottom|center_vertical"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/widget_today_cost"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:fontFamily="monospace"
-            android:singleLine="true"
-            android:text="@string/widget_today_cost_empty"
-            android:textColor="@color/claude_widget_secondary"
-            android:textSize="9sp" />
-
-        <TextView
-            android:id="@+id/widget_health"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:singleLine="true"
-            android:text="@string/widget_health_configure"
-            android:textColor="@color/apple_blue"
-            android:textSize="9sp" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="16dp" android:gravity="bottom|center_vertical" android:orientation="horizontal">
+        <TextView android:id="@+id/widget_currency_note" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:singleLine="true" android:textColor="@color/claude_widget_secondary" android:textSize="9sp" />
+        <TextView android:id="@+id/widget_health" android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:singleLine="true" android:text="同步正常" android:textColor="@color/apple_blue" android:textSize="9sp" />
     </LinearLayout>
 </LinearLayout>

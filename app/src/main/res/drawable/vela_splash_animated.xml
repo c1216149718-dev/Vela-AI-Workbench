@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/vela_splash_vector">
-    <target android:name="orbit" android:animation="@animator/vela_orbit_animator" />
-    <target android:name="sails" android:animation="@animator/vela_sail_animator" />
-    <target android:name="ripple" android:animation="@animator/vela_ripple_animator" />
-</animated-vector>

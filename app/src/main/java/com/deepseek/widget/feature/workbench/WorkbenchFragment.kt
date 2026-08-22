@@ -51,12 +51,11 @@ class WorkbenchFragment : Fragment() {
                     },
                     onSeeAllTasks = { findNavController().navigate(R.id.taskListFragment) },
                     onFocusClick = { findNavController().navigate(R.id.focusFragment) },
-                    onDeepSeekClick = { findNavController().navigate(R.id.deepSeekFragment) },
-                    onApiKeyFunClick = { findNavController().navigate(R.id.apiKeyFunFragment) },
                     onReviewSave = { note ->
                         val rating = viewModel.uiState.value.todayReview?.rating ?: 3
                         viewModel.saveReview(rating, note)
                     },
+                    onReviewResultConsumed = viewModel::consumeReviewSaveResult,
                     onReviewArchive = {
                         findNavController().navigate(R.id.reviewArchiveFragment)
                     },

@@ -85,11 +85,14 @@ import com.deepseek.widget.domain.model.Task
 import com.deepseek.widget.domain.model.TaskPriority
 import com.deepseek.widget.domain.model.TaskSourceType
 import com.deepseek.widget.domain.model.TaskStatus
+import com.deepseek.widget.feature.workbench.ReviewSaveStatus
 import com.deepseek.widget.feature.workbench.WorkbenchUiState
 import com.deepseek.widget.ui.components.GlassScreen
 import com.deepseek.widget.ui.components.GlassSurface
-import com.deepseek.widget.ui.components.ProviderBrand
-import com.deepseek.widget.ui.components.ProviderIdentity
+import com.deepseek.widget.ui.components.VelaEditorialHeader
+import com.deepseek.widget.ui.components.VelaMotif
+import com.deepseek.widget.ui.components.VelaSectionOrnament
+import com.deepseek.widget.ui.components.VelaTitle
 import com.deepseek.widget.ui.theme.LocalWorkbenchColors
 import com.deepseek.widget.ui.theme.WorkbenchTheme
 import dev.chrisbanes.haze.HazeState
@@ -107,8 +110,7 @@ private enum class HomePanel(val title: String, val transformOriginY: Float) {
     OVERVIEW("DAY AT A GLANCE", 0.2f),
     TASKS("NEXT", 0.42f),
     FOCUS("FOCUS", 0.58f),
-    AI_RESOURCES("AI RESOURCES", 0.74f),
-    REVIEW("DAILY REVIEW", 0.88f)
+    REVIEW("DAILY REVIEW", 0.78f)
 }
 
 private enum class HomeWindowSize {
@@ -125,15 +127,14 @@ fun HomeScreen(
     onTaskClick: (Task) -> Unit,
     onSeeAllTasks: () -> Unit,
     onFocusClick: () -> Unit,
-    onDeepSeekClick: () -> Unit,
-    onApiKeyFunClick: () -> Unit,
     onReviewSave: (String) -> Unit,
+    onReviewResultConsumed: () -> Unit,
     onReviewArchive: () -> Unit,
     modifier: Modifier = Modifier,
     onWindowStateChanged: (open: Boolean, fullscreen: Boolean) -> Unit = { _, _ -> }
 ) {
     if (state.isLoading) {
-        GlassScreen(modifier) {
+        GlassScreen(modifier, motif = VelaMotif.HOME) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(modifier = Modifier.size(26.dp), strokeWidth = 2.dp)
             }
@@ -158,6 +159,13 @@ fun HomeScreen(
     LaunchedEffect(windowOpen, windowSize) {
         onWindowStateChanged(windowOpen, windowOpen && windowSize == HomeWindowSize.FULLSCREEN)
     }
+    LaunchedEffect(state.reviewSaveStatus) {
+        if (state.reviewSaveStatus == ReviewSaveStatus.SAVED) {
+            selectedPanel = null
+            windowSize = HomeWindowSize.WINDOWED
+            onReviewResultConsumed()
+        }
+    }
     BackHandler(enabled = windowOpen) {
         when (windowSize) {
             HomeWindowSize.FULLSCREEN -> windowSize = HomeWindowSize.WINDOWED
@@ -166,7 +174,7 @@ fun HomeScreen(
         }
     }
 
-    GlassScreen(modifier) {
+    GlassScreen(modifier, motif = VelaMotif.HOME) {
         val homeAlpha by animateFloatAsState(
             targetValue = if (windowOpen) 0.9f else 1f,
             animationSpec = tween(220),
@@ -179,13 +187,9 @@ fun HomeScreen(
             onTaskClick = onTaskClick,
             onSeeAllTasks = onSeeAllTasks,
             onFocusClick = onFocusClick,
-            onDeepSeekClick = onDeepSeekClick,
-            onApiKeyFunClick = onApiKeyFunClick,
-            onReviewSave = onReviewSave,
-            onReviewArchive = onReviewArchive,
             onPanelClick = {
                 windowSize = when (it) {
-                    HomePanel.FOCUS, HomePanel.AI_RESOURCES -> HomeWindowSize.COMPACT
+                    HomePanel.FOCUS -> HomeWindowSize.COMPACT
                     else -> HomeWindowSize.WINDOWED
                 }
                 selectedPanel = it
@@ -266,8 +270,6 @@ fun HomeScreen(
                         selectedPanel = null
                         onFocusClick()
                     },
-                    onDeepSeekClick = onDeepSeekClick,
-                    onApiKeyFunClick = onApiKeyFunClick,
                     onReviewSave = onReviewSave,
                     onReviewArchive = onReviewArchive
                 )
@@ -284,10 +286,6 @@ private fun HomeContent(
     onTaskClick: (Task) -> Unit,
     onSeeAllTasks: () -> Unit,
     onFocusClick: () -> Unit,
-    onDeepSeekClick: () -> Unit,
-    onApiKeyFunClick: () -> Unit,
-    onReviewSave: (String) -> Unit,
-    onReviewArchive: () -> Unit,
     onPanelClick: (HomePanel) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -309,25 +307,15 @@ private fun HomeContent(
             )
         }
         item { FocusSurface(state.activeFocus, onClick = { onPanelClick(HomePanel.FOCUS) }) }
-        item { AiResources(state, onClick = { onPanelClick(HomePanel.AI_RESOURCES) }) }
         item { DailyReview(state.todayReview?.note.orEmpty(), onClick = { onPanelClick(HomePanel.REVIEW) }) }
+        item { VelaSectionOrnament(VelaMotif.HOME) }
     }
 }
 
 @Composable
 private fun LargeTitleHeader(state: WorkbenchUiState) {
     Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-        Text(
-            text = stringResource(R.string.home_kicker),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = stringResource(R.string.workbench_section_today),
-            style = MaterialTheme.typography.headlineLarge,
-            color = MaterialTheme.colorScheme.onBackground
-        )
+        VelaEditorialHeader(VelaTitle.TODAY)
         Text(
             text = state.dateText,
             style = MaterialTheme.typography.bodyMedium,
@@ -440,8 +428,9 @@ private fun TodayTasks(
     Column(modifier = Modifier.fillMaxWidth()) {
         SectionHeader(
             title = stringResource(R.string.home_next_action),
+            titleAsset = VelaTitle.NEXT,
             caption = null,
-            meta = "${state.completedTaskCount}/${state.todayTaskCount}",
+            meta = if (state.nextStepTotalCount > 4) "4/${state.nextStepTotalCount}" else state.nextStepTotalCount.toString(),
             action = stringResource(R.string.tasks_filter_all),
             onAction = onSeeAll
         )
@@ -451,8 +440,9 @@ private fun TodayTasks(
             shape = GroupShape,
             onClick = onPanelClick
         ) {
-            TaskListContent(state.todayTasks.take(3), onTaskToggle, onTaskClick)
+            TaskListContent(state.todayTasks, onTaskToggle, onTaskClick)
         }
+        VelaSectionOrnament(VelaMotif.TASKS)
     }
 }
 
@@ -577,70 +567,11 @@ private fun FocusContent(session: FocusSession?, onOpenFocus: (() -> Unit)? = nu
 }
 
 @Composable
-private fun AiResources(state: WorkbenchUiState, onClick: () -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        SectionHeader(
-            title = stringResource(R.string.workbench_section_ai),
-            caption = null,
-            meta = null
-        )
-        Spacer(Modifier.height(12.dp))
-        GlassSurface(
-            modifier = Modifier.fillMaxWidth().testTag("home_panel_ai"),
-            shape = GroupShape,
-            onClick = onClick
-        ) {
-            ProviderList(state, onDeepSeekClick = null, onApiKeyFunClick = null)
-        }
-    }
-}
-
-@Composable
-private fun ProviderList(
-    state: WorkbenchUiState,
-    onDeepSeekClick: (() -> Unit)?,
-    onApiKeyFunClick: (() -> Unit)?
-) {
-    Column {
-        ProviderRow(ProviderBrand.DEEPSEEK, stringResource(R.string.deepseek_account), state.deepSeekAccount, onDeepSeekClick)
-        HorizontalDivider(modifier = Modifier.padding(start = 72.dp), color = LocalWorkbenchColors.current.border)
-        ProviderRow(ProviderBrand.APIKEY_FUN, stringResource(R.string.apikey_fun_account), state.apiKeyFunAccount, onApiKeyFunClick)
-    }
-}
-
-@Composable
-private fun ProviderRow(provider: ProviderBrand, name: String, cache: AccountCache, onClick: (() -> Unit)?) {
-    val configured = cache.lastUpdated > 0
-    val status = when {
-        cache.errorMessage.isNotBlank() -> stringResource(R.string.status_error)
-        !configured -> stringResource(R.string.not_configured)
-        cache.isAvailable -> stringResource(R.string.status_available)
-        else -> stringResource(R.string.status_unavailable)
-    }
-    val modifier = Modifier.fillMaxWidth().heightIn(min = 82.dp)
-        .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
-        .padding(horizontal = 16.dp)
-    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        ProviderIdentity(provider)
-        Spacer(Modifier.width(14.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(name, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.SemiBold)
-            Text(status, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-        Text(
-            text = if (configured) "${currencySymbol(cache.currency)}${cache.totalBalance.ifBlank { "--" }}" else "--",
-            style = MaterialTheme.typography.titleMedium.copy(fontFamily = FontFamily.Monospace, fontFeatureSettings = "tnum")
-        )
-        Spacer(Modifier.width(4.dp))
-        Icon(Icons.Rounded.ChevronRight, contentDescription = null, tint = LocalWorkbenchColors.current.tertiaryText)
-    }
-}
-
-@Composable
 private fun DailyReview(note: String, onClick: () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth()) {
         SectionHeader(
             title = stringResource(R.string.workbench_section_review),
+            titleAsset = VelaTitle.DAILY_REFLECTION,
             caption = null,
             meta = null
         )
@@ -662,6 +593,7 @@ private fun DailyReview(note: String, onClick: () -> Unit) {
                 Icon(Icons.Rounded.ChevronRight, contentDescription = null, tint = LocalWorkbenchColors.current.tertiaryText)
             }
         }
+        VelaSectionOrnament(VelaMotif.DAILY_REFLECTION)
     }
 }
 
@@ -678,8 +610,6 @@ private fun ExpandedHomeWindow(
     onTaskClick: (Task) -> Unit,
     onSeeAllTasks: () -> Unit,
     onFocusClick: () -> Unit,
-    onDeepSeekClick: () -> Unit,
-    onApiKeyFunClick: () -> Unit,
     onReviewSave: (String) -> Unit,
     onReviewArchive: () -> Unit
 ) {
@@ -732,16 +662,19 @@ private fun ExpandedHomeWindow(
                     when (panel) {
                         HomePanel.OVERVIEW -> {
                             TodayOverviewContent(state)
-                            HorizontalDivider(color = LocalWorkbenchColors.current.border)
-                            ProviderList(state, onDeepSeekClick, onApiKeyFunClick)
                         }
                         HomePanel.TASKS -> {
-                            TaskListContent(state.todayTasks, onTaskToggle, onTaskClick)
+                            TaskListContent(state.allNextSteps, onTaskToggle, onTaskClick)
                             TextButton(onClick = onSeeAllTasks, modifier = Modifier.align(Alignment.End)) { Text("查看全部任务") }
                         }
                         HomePanel.FOCUS -> FocusContent(state.activeFocus, onOpenFocus = onFocusClick)
-                        HomePanel.AI_RESOURCES -> ProviderList(state, onDeepSeekClick, onApiKeyFunClick)
-                        HomePanel.REVIEW -> ReviewEditor(state.todayReview?.note.orEmpty(), onReviewSave, onReviewArchive)
+                        HomePanel.REVIEW -> ReviewEditor(
+                            initialNote = state.todayReview?.note.orEmpty(),
+                            isSaving = state.reviewSaveStatus == ReviewSaveStatus.SAVING,
+                            error = state.reviewSaveError,
+                            onSave = onReviewSave,
+                            onArchive = onReviewArchive
+                        )
                     }
                 }
             }
@@ -798,7 +731,13 @@ private fun WindowDot(
 }
 
 @Composable
-private fun ReviewEditor(initialNote: String, onSave: (String) -> Unit, onArchive: () -> Unit) {
+private fun ReviewEditor(
+    initialNote: String,
+    isSaving: Boolean,
+    error: String?,
+    onSave: (String) -> Unit,
+    onArchive: () -> Unit
+) {
     var note by rememberSaveable(initialNote) { mutableStateOf(initialNote) }
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
@@ -818,8 +757,15 @@ private fun ReviewEditor(initialNote: String, onSave: (String) -> Unit, onArchiv
                 unfocusedIndicatorColor = Color.Transparent
             )
         )
-        TextButton(onClick = { onSave(note.trim()) }, enabled = note.isNotBlank(), modifier = Modifier.align(Alignment.End)) {
-            Text(stringResource(R.string.action_save), fontWeight = FontWeight.SemiBold)
+        error?.let {
+            Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+        }
+        TextButton(onClick = { onSave(note.trim()) }, enabled = note.isNotBlank() && !isSaving, modifier = Modifier.align(Alignment.End)) {
+            if (isSaving) {
+                CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                Spacer(Modifier.width(8.dp))
+            }
+            Text(if (isSaving) "保存中" else stringResource(R.string.action_save), fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -827,6 +773,7 @@ private fun ReviewEditor(initialNote: String, onSave: (String) -> Unit, onArchiv
 @Composable
 private fun SectionHeader(
     title: String,
+    titleAsset: VelaTitle? = null,
     caption: String?,
     meta: String?,
     action: String? = null,
@@ -834,7 +781,11 @@ private fun SectionHeader(
 ) {
     Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(title, style = MaterialTheme.typography.headlineSmall)
+            if (titleAsset != null) {
+                VelaEditorialHeader(titleAsset)
+            } else {
+                Text(title, style = MaterialTheme.typography.headlineSmall)
+            }
             caption?.let { Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
         }
         meta?.let { Text(it, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) }
@@ -867,7 +818,7 @@ private fun HomePreview() {
                 isLoading = false
             ),
             onAddTask = {}, onTaskToggle = {}, onTaskClick = {}, onSeeAllTasks = {}, onFocusClick = {},
-            onDeepSeekClick = {}, onApiKeyFunClick = {}, onReviewSave = {}, onReviewArchive = {}
+            onReviewSave = {}, onReviewResultConsumed = {}, onReviewArchive = {}
         )
     }
 }

@@ -18,7 +18,7 @@ class InsightsFragment : Fragment() {
 
     private val viewModel: InsightsViewModel by activityViewModels {
         val container = (requireActivity().application as DeepSeekWidgetApp).container
-        InsightsViewModel.factory(container.aiUsageRepository, container.appPreferences, container.apiKeyFunProfiles)
+        InsightsViewModel.factory(container.aiUsageRepository, container.appPreferences, container.apiKeyFunProfiles, container.providerProfileRepository)
     }
 
     override fun onCreateView(
@@ -32,8 +32,10 @@ class InsightsFragment : Fragment() {
                 InsightsScreen(
                     state = viewModel.uiState.collectAsStateWithLifecycle().value,
                     onUsageClick = { findNavController().navigate(R.id.usageDetailFragment) },
-                    onDeepSeekClick = { findNavController().navigate(R.id.deepSeekFragment) },
-                    onApiKeyFunClick = { findNavController().navigate(R.id.apiKeyFunFragment) },
+                    onDataSourcesClick = { findNavController().navigate(R.id.dataSourceCenterFragment) },
+                    onProviderClick = { providerId ->
+                        findNavController().navigate(R.id.providerDetailFragment, Bundle().apply { putString("providerId", providerId) })
+                    },
                     onRangeChange = viewModel::selectDays,
                     onRefresh = viewModel::refresh
                 )

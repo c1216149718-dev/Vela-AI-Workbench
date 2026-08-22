@@ -37,6 +37,10 @@ import com.deepseek.widget.domain.model.FocusSession
 import com.deepseek.widget.domain.model.FocusStatus
 import com.deepseek.widget.ui.components.GlassScreen
 import com.deepseek.widget.ui.components.GlassSurface
+import com.deepseek.widget.ui.components.VelaEditorialHeader
+import com.deepseek.widget.ui.components.VelaMotif
+import com.deepseek.widget.ui.components.VelaSectionOrnament
+import com.deepseek.widget.ui.components.VelaTitle
 import com.deepseek.widget.ui.theme.LocalWorkbenchColors
 import java.time.Instant
 import java.time.ZoneId
@@ -47,7 +51,7 @@ import java.util.Locale
 @Composable
 fun FocusHistoryScreen(sessions: List<FocusSession>, onBack: () -> Unit) {
     val completed = sessions.filter { it.status == FocusStatus.COMPLETED }
-    GlassScreen(modifier = Modifier.testTag("focus_history_screen")) {
+    GlassScreen(modifier = Modifier.testTag("focus_history_screen"), motif = VelaMotif.FOCUS_HISTORY) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(start = 20.dp, top = 14.dp, end = 20.dp, bottom = 72.dp),
@@ -58,17 +62,10 @@ fun FocusHistoryScreen(sessions: List<FocusSession>, onBack: () -> Unit) {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "返回")
                     }
-                    Column(modifier = Modifier.padding(start = 8.dp)) {
-                        Text(
-                            "FOCUS ARCHIVE",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text("专注记录", style = MaterialTheme.typography.headlineSmall)
-                    }
+                    VelaEditorialHeader(VelaTitle.FOCUS_HISTORY, Modifier.padding(start = 8.dp).weight(1f))
                 }
             }
+            item { VelaSectionOrnament(VelaMotif.FOCUS_HISTORY) }
             item {
                 GlassSurface(modifier = Modifier.fillMaxWidth(), blurRadius = 24.dp) {
                     Row(

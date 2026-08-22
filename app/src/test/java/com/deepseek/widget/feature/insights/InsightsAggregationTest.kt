@@ -1,7 +1,8 @@
 package com.deepseek.widget.feature.insights
 
 import com.deepseek.widget.data.repository.UsageModelRecord
-import com.deepseek.widget.data.repository.UsageProvider
+import com.deepseek.widget.data.provider.ProviderRegistry
+import com.deepseek.widget.data.provider.MetricProvenance
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.math.BigDecimal
@@ -11,7 +12,7 @@ class InsightsAggregationTest {
     @Test fun `model overflow keeps top five and merges the remainder`() {
         val models = (1..8).map { index ->
             UsageModelRecord(
-                provider = UsageProvider.APIKEY_FUN,
+                provider = ProviderRegistry.APIKEY_FUN,
                 credentialId = "key-$index",
                 credentialLabel = "Key $index",
                 model = "model-$index",
@@ -19,7 +20,8 @@ class InsightsAggregationTest {
                 cost = BigDecimal(index),
                 requests = index.toLong(),
                 totalTokens = index * 100L,
-                estimated = false
+                provenance = MetricProvenance.EXACT_API,
+                sourceId = "test"
             )
         }
         val ranked = rankModels(models, UsageMetric.COST)
@@ -37,8 +39,8 @@ class InsightsAggregationTest {
 
     @Test fun `cost ranking can be separated by currency before aggregation`() {
         val mixed = listOf(
-            UsageModelRecord(UsageProvider.DEEPSEEK, "deepseek", "DeepSeek", "deepseek-chat", "CNY", BigDecimal("3.00"), 1, 100, true),
-            UsageModelRecord(UsageProvider.APIKEY_FUN, "key-1", "Key 1", "claude", "USD", BigDecimal("9.00"), 2, 200, false)
+            UsageModelRecord(ProviderRegistry.DEEPSEEK, "deepseek", "DeepSeek", "deepseek-chat", "CNY", BigDecimal("3.00"), 1, 100, MetricProvenance.BALANCE_DELTA_ESTIMATE, "test"),
+            UsageModelRecord(ProviderRegistry.APIKEY_FUN, "key-1", "Key 1", "claude", "USD", BigDecimal("9.00"), 2, 200, MetricProvenance.EXACT_API, "test")
         )
         val usd = rankModels(mixed.filter { it.currency == "USD" }, UsageMetric.COST)
         assertEquals(1, usd.size)

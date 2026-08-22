@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="app_background">#111416</color>
-    <color name="surface_background">#961C1F20</color>
-    <color name="surface_elevated">#202324</color>
-    <color name="surface_inner">#78292B2A</color>
+    <color name="app_background">#121D29</color>
+    <color name="surface_background">#96182635</color>
+    <color name="surface_elevated">#172A3C</color>
+    <color name="surface_inner">#78203347</color>
     <color name="divider">#3B3E3D</color>
     <color name="card_pressed">#524B4D4A</color>
     <color name="widget_card_bg">#65292B2A</color>
     <color name="widget_border">#3B3E3D</color>
-    <color name="apple_blue">#88A5B1</color>
-    <color name="nav_selection_bg">#334B55</color>
+    <color name="apple_blue">#7FB3E5</color>
+    <color name="nav_selection_bg">#213A55</color>
     <color name="bottom_nav_glass">#A014171A</color>
     <color name="bottom_nav_glass_border">#55FFFFFF</color>
     <color name="bottom_nav_blur_overlay">#A5171A1D</color>
     <color name="bottom_nav_indicator_fill">#3EFFFFFF</color>
     <color name="bottom_nav_indicator_border">#75FFFFFF</color>
-    <color name="bottom_nav_indicator_glow">#7088A5B1</color>
+    <color name="bottom_nav_indicator_glow">#707FB3E5</color>
 
-    <color name="balance_text">#F2EFE9</color>
+    <color name="balance_text">#F2EDE5</color>
     <color name="label_text">#D9D5CE</color>
-    <color name="muted_text">#B7B4AE</color>
+    <color name="muted_text">#B8B2AA</color>
     <color name="faint_text">#7F827E</color>
 
     <color name="deepseek_blue">#7E9EAA</color>
@@ -28,7 +28,7 @@
     <color name="apikey_amber">#B88E77</color>
     <color name="apikey_amber_dark">#A47B66</color>
     <color name="hero_label_clay">#C6B7AE</color>
-    <color name="on_hero">#F2EFE9</color>
+    <color name="on_hero">#F2EDE5</color>
     <color name="hero_divider">#36FFFFFF</color>
     <color name="provider_glass_overlay">#521C1F20</color>
     <color name="glass_button_fill">#24FFFFFF</color>
@@ -46,11 +46,11 @@
     <color name="comparison_sage">#8FA58D</color>
     <color name="chip_green_bg">#3982A88D</color>
 
-    <color name="widget_background">#1A1D1E</color>
+    <color name="widget_background">#102233</color>
     <color name="claude_widget_background">#E816191A</color>
     <color name="claude_widget_border">#52FFFFFF</color>
-    <color name="claude_widget_primary">#F2EFE9</color>
-    <color name="claude_widget_secondary">#B7B4AE</color>
+    <color name="claude_widget_primary">#F2EDE5</color>
+    <color name="claude_widget_secondary">#B8B2AA</color>
     <color name="claude_widget_divider">#24FFFFFF</color>
     <color name="claude_widget_button">#30FFFFFF</color>
     <color name="claude_green">#82A88D</color>

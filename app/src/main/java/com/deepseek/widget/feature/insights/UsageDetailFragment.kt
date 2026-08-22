@@ -16,7 +16,7 @@ import com.deepseek.widget.ui.theme.WorkbenchTheme
 class UsageDetailFragment : Fragment() {
     private val viewModel: InsightsViewModel by activityViewModels {
         val container = (requireActivity().application as DeepSeekWidgetApp).container
-        InsightsViewModel.factory(container.aiUsageRepository, container.appPreferences, container.apiKeyFunProfiles)
+        InsightsViewModel.factory(container.aiUsageRepository, container.appPreferences, container.apiKeyFunProfiles, container.providerProfileRepository)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View =

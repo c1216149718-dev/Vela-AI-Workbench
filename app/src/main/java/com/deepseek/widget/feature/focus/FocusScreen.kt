@@ -87,6 +87,9 @@ import com.deepseek.widget.data.FocusTimerStyle
 import com.deepseek.widget.domain.model.FocusStatus
 import com.deepseek.widget.ui.components.GlassScreen
 import com.deepseek.widget.ui.components.GlassSurface
+import com.deepseek.widget.ui.components.VelaEditorialHeader
+import com.deepseek.widget.ui.components.VelaMotif
+import com.deepseek.widget.ui.components.VelaTitle
 import com.deepseek.widget.ui.theme.LocalWorkbenchColors
 import kotlinx.coroutines.delay
 import kotlin.math.cos
@@ -150,7 +153,7 @@ fun FocusScreen(
     val progressTarget = if (total <= 0L) 0f else (remaining.toFloat() / total).coerceIn(0f, 1f)
     val progress by animateFloatAsState(progressTarget, tween(520, easing = LinearEasing), label = "focus-progress")
 
-    GlassScreen(modifier = Modifier.testTag("focus_screen")) {
+    GlassScreen(modifier = Modifier.testTag("focus_screen"), motif = VelaMotif.FOCUS) {
         AnimatedVisibility(
             visible = !active && setupStep == FocusSetupStep.DURATION,
             enter = fadeIn(tween(220)) + slideInHorizontally(tween(360)) { -it / 5 },
@@ -381,9 +384,13 @@ private fun FocusPageHeader(
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         IconButton(onClick = onBack) { Icon(Icons.AutoMirrored.Rounded.ArrowBack, "返回") }
-        Column(Modifier.padding(start = 8.dp).weight(1f)) {
-            Text(english, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-            Text(title, style = MaterialTheme.typography.headlineSmall)
+        if (title == "专注") {
+            VelaEditorialHeader(VelaTitle.FOCUS, Modifier.padding(start = 8.dp).weight(1f))
+        } else {
+            Column(Modifier.padding(start = 8.dp).weight(1f)) {
+                Text(english, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                Text(title, style = MaterialTheme.typography.headlineSmall)
+            }
         }
         IconButton(onClick = onHistory) { Icon(Icons.Rounded.History, "专注历史") }
     }

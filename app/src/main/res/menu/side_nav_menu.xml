@@ -9,9 +9,7 @@
     </item>
     <item android:title="数据源">
         <menu>
-            <item android:id="@+id/deepSeekFragment" android:icon="@drawable/ic_drawer_deepseek" android:title="DeepSeek" />
-            <item android:id="@+id/apiKeyFunFragment" android:icon="@drawable/ic_drawer_apikey" android:title="APIKEY.FUN" />
-            <item android:id="@+id/apiKeyFunKeysFragment" android:icon="@drawable/ic_drawer_key" android:title="密钥管理" />
+            <item android:id="@+id/dataSourceCenterFragment" android:icon="@drawable/ic_drawer_data_sources" android:title="数据源中心" />
         </menu>
     </item>
 </menu>

@@ -47,11 +47,16 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.deepseek.widget.data.repository.UsageProvider
+import com.deepseek.widget.data.provider.ProviderRegistry
+import com.deepseek.widget.data.provider.ProviderId
+import com.deepseek.widget.data.provider.ProviderCapability
 import com.deepseek.widget.ui.components.GlassScreen
 import com.deepseek.widget.ui.components.GlassSurface
-import com.deepseek.widget.ui.components.ProviderBrand
-import com.deepseek.widget.ui.components.ProviderIdentity
+import com.deepseek.widget.ui.components.VelaEditorialHeader
+import com.deepseek.widget.ui.components.VelaMotif
+import com.deepseek.widget.ui.components.VelaSectionOrnament
+import com.deepseek.widget.ui.components.VelaTitle
+import com.deepseek.widget.ui.components.ProviderLogo
 import java.math.BigDecimal
 import java.text.DecimalFormat
 import java.time.format.DateTimeFormatter
@@ -63,13 +68,13 @@ private val InsightShape = RoundedCornerShape(22.dp)
 fun InsightsScreen(
     state: InsightsUiState,
     onUsageClick: () -> Unit,
-    onDeepSeekClick: () -> Unit,
-    onApiKeyFunClick: () -> Unit,
+    onDataSourcesClick: () -> Unit,
+    onProviderClick: (String) -> Unit,
     onRangeChange: (Int) -> Unit,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    GlassScreen(modifier) {
+    GlassScreen(modifier, motif = VelaMotif.INSIGHTS) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(20.dp, 24.dp, 20.dp, 132.dp),
@@ -77,10 +82,7 @@ fun InsightsScreen(
         ) {
             item {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text("INSIGHTS", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
-                        Text("洞察", style = MaterialTheme.typography.headlineLarge)
-                    }
+                    VelaEditorialHeader(VelaTitle.INSIGHTS, Modifier.weight(1f))
                     IconButton(onClick = onRefresh, enabled = !state.isRefreshing) {
                         if (state.isRefreshing) CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
                         else Icon(Icons.Rounded.Refresh, contentDescription = "刷新用量")
@@ -89,14 +91,15 @@ fun InsightsScreen(
             }
             item { RangeChips(state.selectedDays, onRangeChange) }
             item { UsageSummary(state, onUsageClick) }
-            item { ProviderSources(state, onDeepSeekClick, onApiKeyFunClick) }
+            item { ProviderSources(state, onDataSourcesClick, onProviderClick) }
             item {
                 Text(
-                    "DeepSeek 估算 · APIKEY.FUN 实扣 · 金额按币种统计",
+                    "实扣与估算分列 · 金额按币种统计",
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+            item { VelaSectionOrnament(VelaMotif.INSIGHTS) }
         }
     }
 }
@@ -123,9 +126,12 @@ private fun UsageSummary(state: InsightsUiState, onClick: () -> Unit) {
                 Column(Modifier.weight(1f)) {
                     Text("总用量 · ${state.selectedDays} 天", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(
-                        formatCurrencyTotals(state.totalsByCurrency),
+                        state.totalsByCurrency.takeIf { it.isNotEmpty() }?.let(::formatCurrencyTotals) ?: "暂无实扣记录",
                         style = MaterialTheme.typography.displayMedium.copy(fontFamily = FontFamily.Monospace, fontFeatureSettings = "tnum")
                     )
+                    if (state.estimatedTotalsByCurrency.isNotEmpty()) {
+                        Text("估算/本地记录 ${formatCurrencyTotals(state.estimatedTotalsByCurrency)}", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                     Text("${formatLong(state.totalRequests)} 次请求 · ${formatLong(state.totalTokens)} Token", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 Icon(Icons.Rounded.ChevronRight, contentDescription = "打开用量详情")
@@ -152,7 +158,7 @@ private fun UsageStateMessage(state: InsightsUiState) {
     val message = when (state.contentState) {
         UsageContentState.PARTIAL -> "部分数据源刷新失败，当前显示已缓存数据"
         UsageContentState.STALE -> "刷新失败，当前显示上次成功数据"
-        UsageContentState.UNCONFIGURED -> "绑定 Key 后即可同步平台用量"
+        UsageContentState.UNCONFIGURED -> "连接数据源后同步用量"
         else -> null
     }
     if (message != null) Text(message, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.tertiary)
@@ -179,22 +185,45 @@ private fun SmallUsageBars(values: List<BigDecimal>, color: Color) {
 }
 
 @Composable
-private fun ProviderSources(state: InsightsUiState, onDeepSeekClick: () -> Unit, onApiKeyFunClick: () -> Unit) {
+private fun ProviderSources(state: InsightsUiState, onDataSourcesClick: () -> Unit, onProviderClick: (String) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text("数据源", style = MaterialTheme.typography.headlineSmall)
+        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            VelaEditorialHeader(VelaTitle.DATA_SOURCES, modifier = Modifier.weight(1f))
+            Text("管理", modifier = Modifier.clickable(onClick = onDataSourcesClick).padding(12.dp), color = MaterialTheme.colorScheme.primary)
+        }
         GlassSurface(modifier = Modifier.fillMaxWidth(), shape = InsightShape) {
             Column {
-                ProviderRow(ProviderBrand.DEEPSEEK, "DeepSeek", formatCurrencyTotals(state.providerTotals[UsageProvider.DEEPSEEK].orEmpty().ifEmpty { mapOf("CNY" to BigDecimal.ZERO) }), "估算", onDeepSeekClick)
-                ProviderRow(ProviderBrand.APIKEY_FUN, "APIKEY.FUN", formatCurrencyTotals(state.providerTotals[UsageProvider.APIKEY_FUN].orEmpty().ifEmpty { mapOf("USD" to BigDecimal.ZERO) }), "实扣", onApiKeyFunClick)
+                val visible = (state.connectedProviders + state.providerTotals.keys + state.providerEstimatedTotals.keys)
+                    .sortedBy { ProviderRegistry.descriptor(it.value)?.displayName ?: it.value }
+                if (visible.isEmpty()) {
+                    Text("尚未添加供应商连接", modifier = Modifier.padding(18.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                visible.forEach { provider ->
+                    val descriptor = ProviderRegistry.descriptor(provider.value) ?: return@forEach
+                    val exact = state.providerTotals[provider].orEmpty()
+                    val estimated = state.providerEstimatedTotals[provider].orEmpty()
+                    val value = when {
+                        exact.isNotEmpty() -> formatCurrencyTotals(exact)
+                        estimated.isNotEmpty() -> formatCurrencyTotals(estimated)
+                        else -> "官方接口未提供"
+                    }
+                    val status = when {
+                        exact.isNotEmpty() -> "实际扣费"
+                        estimated.isNotEmpty() -> "估算/本地记录"
+                        ProviderCapability.BALANCE in descriptor.capabilities -> "余额可同步"
+                        else -> descriptor.capabilities.take(3).joinToString(" · ") { it.label }
+                    }
+                    ProviderRow(provider, descriptor.displayName, value, status) { onProviderClick(provider.value) }
+                }
             }
         }
     }
 }
 
 @Composable
-private fun ProviderRow(brand: ProviderBrand, name: String, value: String, status: String, onClick: () -> Unit) {
+private fun ProviderRow(provider: ProviderId, name: String, value: String, status: String, onClick: () -> Unit) {
     Row(Modifier.fillMaxWidth().heightIn(min = 82.dp).clickable(onClick = onClick).padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
-        ProviderIdentity(brand)
+        ProviderLogo(provider, name)
         Spacer(Modifier.width(14.dp))
         Column(Modifier.weight(1f)) {
             Text(name, fontWeight = FontWeight.SemiBold)
@@ -220,7 +249,7 @@ private fun emptyMessage(state: InsightsUiState): String = when (state.contentSt
 }
 
 internal fun formatCurrencyTotals(values: Map<String, BigDecimal>): String {
-    if (values.isEmpty()) return "¥0.00 · $0.00"
+    if (values.isEmpty()) return "暂无数据"
     return values.entries.sortedBy { it.key }.joinToString(" · ") { (currency, value) ->
         val symbol = when (currency.uppercase()) { "CNY", "RMB" -> "¥"; "EUR" -> "€"; else -> "$" }
         "$symbol${value.setScale(2, java.math.RoundingMode.HALF_UP).toPlainString()}"

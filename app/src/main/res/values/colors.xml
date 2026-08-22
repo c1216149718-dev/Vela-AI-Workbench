@@ -3,7 +3,7 @@
     <!-- A+C: warm porcelain, misted steel and smoked clay. -->
 
     <!-- 基底 -->
-    <color name="app_background">#E7E2D8</color>
+    <color name="app_background">#F2EBE2</color>
     <color name="surface_background">#B8FFFFFF</color>
     <color name="surface_elevated">#EEE9E0</color>
     <color name="surface_inner">#8FFFFFFF</color>
@@ -11,19 +11,19 @@
     <color name="widget_border">#C8C1B5</color>
     <color name="divider">#C8C1B5</color>
     <color name="card_pressed">#52A8A196</color>
-    <color name="apple_blue">#466875</color>
-    <color name="nav_selection_bg">#D8E1E0</color>
+    <color name="apple_blue">#9B672D</color>
+    <color name="nav_selection_bg">#EFE0C5</color>
     <color name="bottom_nav_glass">#B3F1EEE6</color>
     <color name="bottom_nav_glass_border">#D9FFFFFF</color>
     <color name="bottom_nav_blur_overlay">#A8E8E3D9</color>
     <color name="bottom_nav_indicator_fill">#8AFFFFFF</color>
     <color name="bottom_nav_indicator_border">#E0FFFFFF</color>
-    <color name="bottom_nav_indicator_glow">#70466875</color>
+    <color name="bottom_nav_indicator_glow">#70B27B34</color>
 
     <!-- 文字 -->
-    <color name="balance_text">#252522</color>
-    <color name="label_text">#4B4D48</color>
-    <color name="muted_text">#62645F</color>
+    <color name="balance_text">#332C25</color>
+    <color name="label_text">#554D45</color>
+    <color name="muted_text">#6D655D</color>
     <color name="faint_text">#858780</color>
 
     <!-- DeepSeek 主色（灰蓝） -->
@@ -37,7 +37,7 @@
     <color name="hero_label_clay">#6B625D</color>
 
     <!-- hero 卡片通用 -->
-    <color name="on_hero">#252522</color>
+    <color name="on_hero">#332C25</color>
     <color name="hero_divider">#52A8A196</color>
     <color name="provider_glass_overlay">#35FFFFFF</color>
     <color name="glass_button_fill">#4FFFFFFF</color>
@@ -60,8 +60,8 @@
     <color name="widget_background">#F1ECE3</color>
     <color name="claude_widget_background">#E6F3EFE8</color>
     <color name="claude_widget_border">#F8FFFFFF</color>
-    <color name="claude_widget_primary">#252522</color>
-    <color name="claude_widget_secondary">#62645F</color>
+    <color name="claude_widget_primary">#332C25</color>
+    <color name="claude_widget_secondary">#6D655D</color>
     <color name="claude_widget_divider">#80FFFFFF</color>
     <color name="claude_widget_button">#B8FFFFFF</color>
     <color name="claude_green">#51755E</color>

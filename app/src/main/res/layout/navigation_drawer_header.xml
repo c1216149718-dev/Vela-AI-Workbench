@@ -1,25 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:layout_height="188dp"
     android:paddingStart="24dp"
-    android:paddingTop="44dp"
-    android:paddingEnd="24dp"
-    android:paddingBottom="18dp">
+    android:paddingTop="42dp"
+    android:paddingEnd="30dp"
+    android:paddingBottom="22dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="VELA TOOLS"
-        android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
-        android:textColor="@color/balance_text" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="工具"
-        android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium"
-        android:textColor="@color/muted_text" />
-</LinearLayout>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="86dp"
+        android:layout_gravity="top|start"
+        android:adjustViewBounds="true"
+        android:contentDescription="工具"
+        android:scaleType="fitStart"
+        android:src="@drawable/vela_title_tools" />
+</FrameLayout>
